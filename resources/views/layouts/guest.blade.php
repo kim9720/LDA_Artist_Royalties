@@ -8,10 +8,10 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
         <meta property="og:locale" content="en_US" />
         <meta property="og:type" content="article" />
+        <link rel="shortcut icon" href="{{ asset('assets/media/auth/logo.png') }}" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
         <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-52YZ3XGZJ6"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag() {
@@ -44,11 +44,10 @@
         <div>
             {{ $slot }}
         </div>
-        <script>
-            var hostUrl = "https://preview.keenthemes.com/metronic8/demo9/assets/";
-        </script>
         <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
         <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
         <script src="{{ asset('assets/js/custom/authentication/sign-in/general.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/authentication/sign-up/general.js')}}"></script>
+
     </body>
 </html>

@@ -31,13 +31,25 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'mname' => ['nullable', 'string', 'max:255'],
+            'lname' => ['nullable', 'string', 'max:255'],
+            'artistName' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'bank_name' => ['nullable', 'string', 'max:255'],
+            'account_number' => ['nullable', 'string', 'max:50'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'mname' => $request->mname,
+            'lname' => $request->lname,
+            'artist_name' => $request->artistName,
+            'phone' => $request->phone,
             'email' => $request->email,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
             'password' => Hash::make($request->password),
         ]);
 
@@ -45,6 +57,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('dashboard'));
     }
 }

@@ -16,7 +16,7 @@
                 <div class="bg-body d-flex flex-column align-items-stretch flex-center rounded-4 w-md-500px p-20">
                     <div class="d-flex flex-center flex-column flex-column-fluid px-lg-8 pb-15 pb-lg-20">
 
-                        <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="POST" action="{{ route('login') }}">
+                        <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="POST" action="{{ route('login') }}" data-kt-redirect-url="{{ route('dashboard') }}">
                             @csrf
                             <div class="text-center mb-11">
                                 <h1 class="text-gray-900 fw-bolder mb-3">
