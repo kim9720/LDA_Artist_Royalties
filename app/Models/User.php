@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -29,6 +30,16 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function role()
+    {
+        return DB::table('roles')
+            ->where('id', $this->role_id)
+            ->first();
+    }
+    public function audioFiles()
+    {
+        return $this->hasMany(AudioFile::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

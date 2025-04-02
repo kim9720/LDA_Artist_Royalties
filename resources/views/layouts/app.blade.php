@@ -20,6 +20,10 @@
         type="text/css" />
     <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"> --}}
+    <script src="{{ asset('assets/js/jquery.js') }}"></script>
+
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-52YZ3XGZJ6"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -107,6 +111,9 @@
         <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
 
         <script src="{{ asset('assets/js/custom/apps/file-manager/list.js') }}"></script>
+
+
+
 
 
 </body>

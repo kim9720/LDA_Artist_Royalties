@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
@@ -30,6 +31,7 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        Log::info("tumefika");
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],

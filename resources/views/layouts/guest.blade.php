@@ -48,6 +48,8 @@
         <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
         <script src="{{ asset('assets/js/custom/authentication/sign-in/general.js') }}"></script>
         <script src="{{ asset('assets/js/custom/authentication/sign-up/general.js')}}"></script>
+        <script src="{{ asset('assets/js/custom/authentication/reset-password/reset-password.js')}}"></script>
+        <script src="{{ asset('assets/js/custom/authentication/reset-password/new-password.js')}}"></script>
 
     </body>
 </html>
