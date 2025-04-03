@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class RegisteredUserController extends Controller
 {
@@ -27,18 +30,31 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+
+
+
+    public function checkEmail(Request $request)
     {
-        $request->validate([
+        $valid = !User::where('email', $request->email)->exists();
+        return response()->json(['valid' => $valid]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'mname' => ['nullable', 'string', 'max:255'],
-            'lname' => ['nullable', 'string', 'max:255'],
-            'artistName' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'bank_name' => ['nullable', 'string', 'max:255'],
-            'account_number' => ['nullable', 'string', 'max:50'],
+            'mname' => ['required', 'string', 'max:255'],
+            'lname' => ['required', 'string', 'max:255'],
+            'artistName' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'bank_name' => ['required', 'string', 'max:255'],
+            'account_number' => ['required', 'string', 'max:50'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'toc' => ['required', 'accepted']
+        ], [
+            'toc.required' => 'You must accept the terms and conditions',
+            'toc.accepted' => 'You must accept the terms and conditions'
         ]);
 
         $user = User::create([

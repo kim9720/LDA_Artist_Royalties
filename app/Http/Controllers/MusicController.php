@@ -10,13 +10,14 @@ use getID3;
 use Illuminate\Support\Facades\Auth;
 use DataTables;
 use Illuminate\Container\Attributes\Log;
+use Illuminate\Support\Facades\DB;
 
 class MusicController extends Controller
 {
     public function upload(Request $request)
     {
-        $request->validate([
-            'music.*' => 'required|file|mimes:mp3,wav,aac,ogg,flac|max:20480',
+        $validated = $request->validate([
+            'music1' => 'required|file|mimes:mp3,wav,aac,ogg,flac|max:20480',
             'song_title' => 'required|string|max:255',
             'isrc_code' => 'nullable|string|max:12',
         ]);
@@ -24,60 +25,65 @@ class MusicController extends Controller
         $uploadedFiles = [];
         $errors = [];
 
-        if ($request->hasFile('music')) {
-            foreach ($request->file('music') as $file) {
-                try {
-                    // Generate safe filename
-                    $originalName = $file->getClientOriginalName();
-                    $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
-                        . '.' . $file->extension();
+        if ($request->hasFile('music1')) {
+            $file = $request->file('music1');
 
-                    $path = $file->storeAs('/music', time() . '_' . $safeName);
-                    $fullPath = str_replace('/', '\\', Storage::path($path));
+            try {
+                // Generate safe filename
+                $originalName = $file->getClientOriginalName();
+                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
+                    . '.' . $file->extension();
 
-                    if (!Storage::exists($path)) {
-                        throw new \Exception("File storage failed: {$path}");
-                    }
+                // Store file with timestamp prefix
+                $path = $file->storeAs('music', time() . '_' . $safeName);
+                $fullPath = Storage::path($path);
 
-                    $fingerprint = $this->generateFingerprint($fullPath);
-                    $newHash = hash('sha256', $fingerprint);
-                    if (!$fingerprint) {
-                        Storage::delete($path);
-                        throw new \Exception("Fingerprint generation failed");
-                    }
+                // Verify storage success
+                if (!Storage::exists($path)) {
+                    throw new \Exception("File storage failed: {$path}");
+                }
 
-                    if (AudioFile::where('fingerprint_hash', $newHash)->exists()) {
-                        Storage::delete($path);
-                        \Log::error("iyo ipo");
-                        $errors[] = "{$originalName} Is already been uploaded";
-                        continue;
-                    }
+                // Generate fingerprint
+                $fingerprint = $this->generateFingerprint($fullPath);
+                if (!$fingerprint) {
+                    Storage::delete($path);
+                    throw new \Exception("Fingerprint generation failed");
+                }
 
-                    $getID3 = new \getID3;
-                    $fileInfo = $getID3->analyze($fullPath);
+                $newHash = hash('sha256', $fingerprint);
+                if (AudioFile::where('fingerprint_hash', $newHash)->exists()) {
+                    Storage::delete($path);
+                    $errors[] = "{$originalName} has already been uploaded";
+                    throw new \Exception("Duplicate file detected");
+                }
 
-                    $audioFile = AudioFile::create([
-                        'user_id' => auth()->id(),
-                        'filename' => basename($path),
-                        'original_name' => $originalName,
-                        'path' => $path,
-                        'file_size' => $this->formatBytes($file->getSize()),
-                        'duration' => $fileInfo['playtime_string'] ?? null,
-                        'fingerprint' => $fingerprint,
-                        'fingerprint_hash' => $newHash,
-                        'song_title' => $request->song_title,
-                        'isrc_code' => $request->isrc_code,
-                        'mime_type' => $file->getMimeType(),
-                        'bitrate' => $fileInfo['audio']['bitrate'] ?? null,
-                        'sample_rate' => $fileInfo['audio']['sample_rate'] ?? null,
-                    ]);
+                $getID3 = new \getID3;
+                $fileInfo = $getID3->analyze($fullPath);
 
-                    $uploadedFiles[] = $audioFile;
-                } catch (\Exception $e) {
-                    \Log::error("Audio upload error: " . $e->getMessage(), [
-                        'file' => $originalName ?? 'unknown',
-                        'trace' => $e->getTraceAsString()
-                    ]);
+                $audioFile = AudioFile::create([
+                    'user_id' => auth()->id(),
+                    'filename' => basename($path),
+                    'original_name' => $originalName,
+                    'path' => $path,
+                    'file_size' => $this->formatBytes($file->getSize()),
+                    'duration' => $fileInfo['playtime_string'] ?? null,
+                    'fingerprint' => $fingerprint,
+                    'fingerprint_hash' => $newHash,
+                    'song_title' => $validated['song_title'],
+                    'isrc_code' => $validated['isrc_code'],
+                    'mime_type' => $file->getMimeType(),
+                    // 'bitrate' => $fileInfo['audio']['bitrate'] ?? null,
+                    // 'sample_rate' => $fileInfo['audio']['sample_rate'] ?? null,
+                ]);
+
+                $uploadedFiles[] = $audioFile;
+            } catch (\Exception $e) {
+                \Log::error("Audio upload error: " . $e->getMessage(), [
+                    'file' => $originalName ?? 'unknown',
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                if (!in_array($e->getMessage(), ["Duplicate file detected"])) {
                     $errors[] = "Failed to upload {$originalName}: " . $e->getMessage();
                 }
             }
@@ -87,22 +93,20 @@ class MusicController extends Controller
 
         if (!empty($uploadedFiles)) {
             $response = $response->with([
-                'success' => count($uploadedFiles) . ' file(s) uploaded successfully!',
-                'uploaded_files' => $uploadedFiles // Make sure this is JSON-serializable
+                'success' => count($uploadedFiles) . ' file uploaded successfully!',
+                'uploaded_files' => $uploadedFiles
             ]);
         }
 
         if (!empty($errors)) {
-            // Convert errors to flash session data
             $response = $response->with([
-                'error_messages' => $errors,
-                'uploaded_files' => $uploadedFiles ?? []
+                'error' => $errors[0],
+                'old_input' => $request->except('music')
             ]);
         }
 
         return $response;
     }
-
     private function generateFingerprint($filePath)
     {
         if (!$filePath || !file_exists($filePath)) {
@@ -160,7 +164,6 @@ class MusicController extends Controller
         return $result['fingerprint'];
     }
 
-    // Helper function to get command exit code (Windows/Linux compatible)
     private function getLastCommandExitCode()
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -186,11 +189,11 @@ class MusicController extends Controller
 
     public function getAudioFiles(Request $request)
     {
-        $query = AudioFile::where('user_id', auth()->id())
-            ->with('user') // Eager load user relationship
-            ->select([
-                'audio_files.*',
-            ]);
+        $query = AudioFile::when(auth()->user()->role_id != 1, function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+            ->with('user')
+            ->select(['audio_files.*']);
 
         return DataTables::of($query)
             ->addColumn('artist', function ($file) {
@@ -212,13 +215,16 @@ class MusicController extends Controller
                 ';
             })
             ->addColumn('action', function ($file) {
-                return '
-                    <div class="d-flex justify-content-end">
+                $buttons = '<div class="d-flex justify-content-end">';
 
+                if (auth()->user()->role_id == 2) {
+                    $audioUrl = asset('storage/' . str_replace('public/', '', $file->path));
+                    $url = 'audio_files_edit';
+
+                    $buttons .= '
                         <button class="btn btn-icon btn-bg-light btn-active-color-info btn-sm edit-btn"
                             data-id="' . $file->id . '"
-                            data-bs-toggle="modal"
-                            data-bs-target="#kt_modal_upload"
+                            onclick="editFunction(' . $file->id . ', \'' . addslashes($file->original_name) . '\', \'' . addslashes($file->isrc_code) . '\', \'' . $url . '\', \'' . $audioUrl . '\')"
                             data-name="' . e(pathinfo($file->original_name, PATHINFO_FILENAME)) . '"
                             data-isrc="' . e($file->isrc_code ?? '') . '"
                             data-mode="edit"
@@ -226,28 +232,37 @@ class MusicController extends Controller
                             <i class="fas fa-edit"></i>
                         </button>
 
+
                         <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm delete-btn"
                                 data-id="' . $file->id . '"
                                 data-name="' . e(pathinfo($file->original_name, PATHINFO_FILENAME)) . '"
                                 data-url="' . route('audio_files.destroy', $file->id) . '">
                             <i class="fas fa-trash"></i>
                         </button>
-
-
-                    </div>
+                    ';
+                }
+                if (auth()->user()->role_id == 1) {
+                    $buttons .= '
+                      <button class="btn  btn-bg-success btn-active-color-white btn-sm approve-btn"
+                                data-id="' . $file->id . '"
+                                data-name="' . e(pathinfo($file->original_name, PATHINFO_FILENAME)) . '"
+                                data-url="' . route('audio_files.aprove_song', $file->id) . '">
+                           Aprove
+                        </button>
                 ';
+                }
+                $buttons .= '</div>';
+                return $buttons;
             })
             ->rawColumns(['audio_player', 'action'])
             ->make(true);
     }
 
-    // AudioFileController.php
     public function destroy($id)
     {
         try {
             $file = AudioFile::findOrFail($id);
 
-            // Verify ownership
             if ($file->user_id != auth()->id()) {
                 return response()->json([
                     'success' => false,
@@ -255,10 +270,8 @@ class MusicController extends Controller
                 ], 403);
             }
 
-            // Delete from storage
             Storage::delete($file->path);
 
-            // Delete from database
             $file->delete();
 
             return response()->json([
@@ -273,5 +286,119 @@ class MusicController extends Controller
         }
     }
 
-    public function edit($id) {}
+    public function edit(Request $request)
+    {
+        $request->validate([
+            'song_title' => 'required|string|max:255',
+            'isrc_code' => 'nullable|string|max:12',
+            'music' => 'sometimes|file|mimes:mp3,wav,aac,ogg,flac|max:20480',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $audioFile = AudioFile::findOrFail($request->song_id);
+            $originalPath = $audioFile->path;
+            $newFileData = [];
+            $fingerprintUpdated = false;
+
+
+            if ($request->hasFile('music')) {
+                $file = $request->file('music');
+                $originalName = $file->getClientOriginalName();
+                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
+                    . '.' . $file->extension();
+
+                $path = $file->storeAs('/music', time() . '_' . $safeName);
+                $fullPath = str_replace('/', '\\', Storage::path($path));
+
+                if (!Storage::exists($path)) {
+                    throw new \Exception("File storage failed: {$path}");
+                }
+
+                // Generate new fingerprint
+                $fingerprint = $this->generateFingerprint($fullPath);
+                $newHash = hash('sha256', $fingerprint);
+
+                if (!$fingerprint) {
+                    Storage::delete($path);
+                    throw new \Exception("Fingerprint generation failed");
+                }
+
+                // Check for duplicates (excluding current file)
+                if (AudioFile::where('fingerprint_hash', $newHash)
+                    ->where('id', '!=', $audioFile->id)
+                    ->exists()
+                ) {
+                    Storage::delete($path);
+                    throw new \Exception("This audio content already exists in the system");
+                }
+
+                // Get audio metadata
+                $getID3 = new \getID3;
+                $fileInfo = $getID3->analyze($fullPath);
+
+                $newFileData = [
+                    'filename' => basename($path),
+                    'original_name' => $originalName,
+                    'path' => $path,
+                    'file_size' => $this->formatBytes($file->getSize()),
+                    'duration' => $fileInfo['playtime_string'] ?? null,
+                    'fingerprint' => $fingerprint,
+                    'fingerprint_hash' => $newHash,
+                    'mime_type' => $file->getMimeType(),
+                    'bitrate' => $fileInfo['audio']['bitrate'] ?? null,
+                    'sample_rate' => $fileInfo['audio']['sample_rate'] ?? null,
+                ];
+                $fingerprintUpdated = true;
+            }
+
+            // Update common fields
+            $audioFile->update(array_merge([
+                'song_title' => $request->song_title,
+                'isrc_code' => $request->isrc_code,
+            ], $newFileData));
+
+            if ($request->hasFile('music') && Storage::exists($originalPath)) {
+                Storage::delete($originalPath);
+            }
+
+            DB::commit();
+
+            return back()->with([
+                'success' => 'Audio file updated successfully',
+                'fingerprint_updated' => $fingerprintUpdated,
+                'updated_file' => $audioFile->fresh()
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \log::error("Audio edit error: " . $e->getMessage(), [
+                'song_id' => $request->song_id ?? 'unknown',
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with([
+                'error' => 'Failed to update audio file: ' . $e->getMessage(),
+                'old_input' => $request->except('music')
+            ]);
+        }
+    }
+
+    public function approveSong($id)
+    {
+        try {
+            $audio = AudioFile::find($id);
+            $audio->approve_status = 1;
+            $audio->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Song Approved successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error Approving file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

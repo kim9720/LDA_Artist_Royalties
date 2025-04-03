@@ -28,7 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/audio_files', [MusicController::class, 'index'])->name('audio_files.index');
     Route::get('/audio_files/data', [MusicController::class, 'getAudioFiles'])->name('audio_files.data');
     Route::delete('/audio_files/{id}', [MusicController::class, 'destroy'])->name('audio_files.destroy');
-    Route::delete('/audio_files_edit/{id}', [MusicController::class, 'edit'])->name('audio_files.edit');
+    Route::post('/audio_files_edit', [MusicController::class, 'edit'])->name('audio_files.edit');
+    Route::post('/aprove_song/{id}', [MusicController::class, 'approveSong'])->name('audio_files.aprove_song');
 });
 
 require __DIR__ . '/auth.php';

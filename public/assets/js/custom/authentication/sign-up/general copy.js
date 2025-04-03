@@ -1,170 +1,189 @@
 "use strict";
 
-var KTSignupGeneral = (function () {
-    var form, submitButton, validator, passwordMeter;
+var KTSignupGeneral = function() {
+    var initValidation = function() {
+        var form = $('#kt_sign_up_form');
+        var submitButton = $('#kt_sign_up_submit');
 
-    return {
-        init: function () {
-            form = document.querySelector("#kt_sign_up_form");
-            submitButton = document.querySelector("#kt_sign_up_submit");
-            passwordMeter = KTPasswordMeter.getInstance(
-                form.querySelector('[data-kt-password-meter="true"]')
-            );
+        if (!form.length) return;
 
-            // Form Validation Rules (Front-end)
-            validator = FormValidation.formValidation(form, {
-                fields: {
-                    name: { validators: { notEmpty: { message: "First Name is required" } } },
-                    mname: { validators: {} }, // Optional
-                    lname: { validators: { notEmpty: { message: "Last Name is required" } } },
-                    artistName: { validators: {} }, // Optional
-                    phone: { validators: { notEmpty: { message: "Phone Number is required" } } },
-                    email: {
-                        validators: {
-                            notEmpty: { message: "Email is required" },
-                            regexp: {
-                                regexp: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                message: "Enter a valid email address",
-                            },
+        // Initialize form validation
+        var validator = FormValidation.formValidation(form[0], {
+            fields: {
+                name: {
+                    validators: {
+                        notEmpty: {
+                            message: 'First name is required'
                         },
-                    },
-                    bank_name: { validators: {} }, // Optional
-                    account_number: { validators: {} }, // Optional
-                    password: {
-                        validators: {
-                            notEmpty: { message: "Password is required" },
-                            callback: {
-                                message: "Please enter a strong password",
-                                callback: function (input) {
-                                    if (input.value.length > 0) return isPasswordStrong();
-                                    return false;
-                                },
-                            },
-                        },
-                    },
-                    password_confirmation: {
-                        validators: {
-                            notEmpty: { message: "Password confirmation is required" },
-                            identical: {
-                                compare: function () {
-                                    return form.querySelector('[name="password"]').value;
-                                },
-                                message: "Passwords do not match",
-                            },
-                        },
-                    },
+                        stringLength: {
+                            min: 2,
+                            max: 255,
+                            message: 'First name must be between 2-255 characters'
+                        }
+                    }
                 },
-                plugins: {
-                    trigger: new FormValidation.plugins.Trigger(),
-                    bootstrap: new FormValidation.plugins.Bootstrap5({
-                        rowSelector: ".fv-row",
-                        eleInvalidClass: "",
-                        eleValidClass: "",
-                    }),
+                lname: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Last name is required'
+                        },
+                        stringLength: {
+                            min: 2,
+                            max: 255,
+                            message: 'Last name must be between 2-255 characters'
+                        }
+                    }
                 },
-            });
+                phone: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Phone number is required'
+                        },
+                        stringLength: {
+                            max: 20,
+                            message: 'Phone number must be less than 20 characters'
+                        }
+                    }
+                },
+                email: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Email is required'
+                        },
+                        emailAddress: {
+                            message: 'Enter a valid email address'
+                        },
+                        remote: {
+                            url: '/check-email',
+                            message: 'Email is already taken',
+                            type: 'GET',
+                            delay: 500
+                        }
+                    }
+                },
+                password: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Password is required'
+                        },
+                        stringLength: {
+                            min: 8,
+                            message: 'Password must be at least 8 characters'
+                        },
+                        identical: {
+                            compare: function() {
+                                return form.find('[name="password_confirmation"]').val();
+                            },
+                            message: 'Passwords do not match'
+                        }
+                    }
+                },
+                password_confirmation: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Password confirmation is required'
+                        },
+                        identical: {
+                            compare: function() {
+                                return form.find('[name="password"]').val();
+                            },
+                            message: 'Passwords do not match'
+                        }
+                    }
+                },
+                toc: {
+                    validators: {
+                        notEmpty: {
+                            message: 'You must accept the terms and conditions'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                trigger: new FormValidation.plugins.Trigger(),
+                bootstrap: new FormValidation.plugins.Bootstrap5({
+                    rowSelector: '.fv-row',
+                    eleInvalidClass: 'is-invalid',
+                    eleValidClass: 'is-valid'
+                })
+            }
+        });
 
-            // Password live validation
-            form.querySelector('input[name="password"]').addEventListener("input", function () {
-                if (this.value.length > 0) {
-                    validator.updateFieldStatus("password", "NotValidated");
+        // Form submission handler
+        form.on('submit', function(e) {
+            e.preventDefault();
+
+            validator.validate().then(function(status) {
+                if (status === 'Valid') {
+                    // Show loading state
+                    submitButton.attr('data-kt-indicator', 'on');
+                    submitButton.prop('disabled', true);
+
+                    // Clear previous errors
+                    form.find('.error-message').text('');
+
+                    // AJAX submission
+                    $.ajax({
+                        url: form.attr('action'),
+                        method: 'POST',
+                        data: new FormData(form[0]),
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            }
+                        },
+                        error: function(xhr) {
+                            if (xhr.status === 422) {
+                                var errors = xhr.responseJSON.errors;
+                                $.each(errors, function(field, messages) {
+                                    var errorContainer = form.find('.error-message[data-error-for="' + field + '"]');
+                                    if (errorContainer.length) {
+                                        errorContainer.text(messages[0]);
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    text: xhr.responseJSON.message || 'An error occurred',
+                                    icon: 'error',
+                                    buttonsStyling: false,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary'
+                                    }
+                                });
+                            }
+                        },
+                        complete: function() {
+                            submitButton.removeAttr('data-kt-indicator');
+                            submitButton.prop('disabled', false);
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        text: 'Please fix the errors in the form',
+                        icon: 'error',
+                        buttonsStyling: false,
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        }
+                    });
                 }
             });
-
-            // Submit button handler
-            submitButton.addEventListener("click", function (e) {
-                e.preventDefault(); // Prevent default form submission
-
-                validator.revalidateField("password");
-
-                validator.validate().then(function (status) {
-                    if (status === "Valid") {
-                        submitButton.setAttribute("data-kt-indicator", "on");
-                        submitButton.disabled = true;
-
-                        // Clear old errors
-                        form.querySelectorAll('.text-danger').forEach(el => el.remove());
-
-                        // AJAX request
-                        fetch(form.getAttribute('action'), {
-                            method: 'POST',
-                            body: new FormData(form),
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                        })
-                        .then(response => {
-                            if (response.status === 422) {
-                                return response.json().then(data => {
-                                    displayErrors(data.errors); // Laravel validation errors
-                                    throw new Error('Validation failed');
-                                });
-                            }
-                            if (response.ok) return response.json();
-                            throw new Error('Network response was not ok');
-                        })
-                        .then(data => {
-                            Swal.fire({
-                                text: "Registration successful!",
-                                icon: "success",
-                                confirmButtonText: "Ok, got it!",
-                                customClass: { confirmButton: "btn btn-primary" },
-                            }).then(function () {
-                                form.reset();
-                                passwordMeter.reset();
-                                const redirectUrl = form.getAttribute("data-kt-redirect-url");
-                                if (redirectUrl) window.location.href = redirectUrl;
-                            });
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            if (error.message !== 'Validation failed') {
-                                Swal.fire({
-                                    text: "Something went wrong. Please try again.",
-                                    icon: "error",
-                                    confirmButtonText: "Ok, got it!",
-                                    customClass: { confirmButton: "btn btn-primary" },
-                                });
-                            }
-                        })
-                        .finally(() => {
-                            submitButton.removeAttribute("data-kt-indicator");
-                            submitButton.disabled = false;
-                        });
-
-                    } else {
-                        Swal.fire({
-                            text: "Please fix the errors in the form and try again.",
-                            icon: "error",
-                            confirmButtonText: "Ok, got it!",
-                            customClass: { confirmButton: "btn btn-primary" },
-                        });
-                    }
-                });
-            });
-        },
+        });
     };
-})();
 
-// Function to display backend validation errors
-function displayErrors(errors) {
-    Object.keys(errors).forEach(field => {
-        const input = form.querySelector(`[name="${field}"]`);
-        if (input) {
-            const errorEl = document.createElement('div');
-            errorEl.classList.add('text-danger', 'mt-2');
-            errorEl.innerText = errors[field][0];
-            input.parentNode.appendChild(errorEl);
+    return {
+        init: function() {
+            initValidation();
         }
-    });
-}
+    };
+}();
 
-// Example password strength function (customize if needed)
-function isPasswordStrong() {
-    const password = form.querySelector('input[name="password"]').value;
-    // Example strength check: minimum 8 characters
-    return password.length >= 8;
-}
-
-// Initialize on DOM ready
-KTUtil.onDOMContentLoaded(function () {
+// Initialize on page load
+jQuery(document).ready(function() {
     KTSignupGeneral.init();
 });

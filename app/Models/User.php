@@ -28,6 +28,7 @@ class User extends Authenticatable
         'bank_name',
         'account_number',
         'password',
+        'role_id',
     ];
 
     public function role()

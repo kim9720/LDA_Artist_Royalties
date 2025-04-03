@@ -27,85 +27,70 @@
 
                 <div class="card-body pb-0">
                     <div class="d-flex overflow-auto h-55px">
-                        {{-- <ul
-                            class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-semibold flex-nowrap">
-                            <!--begin::Nav item-->
-                            <li class="nav-item">
-                                <a class="nav-link text-active-primary me-6 active" href="folders.html">
-                                    Files
-                                </a>
-                            </li>
-                            <!--end::Nav item-->
 
-                            <!--begin::Nav item-->
-                            <li class="nav-item">
-                                <a class="nav-link text-active-primary me-6" href="settings.html">
-                                    Settings
-                                </a>
-                            </li>
-                            <!--end::Nav item-->
-                        </ul> --}}
                     </div>
                 </div>
             </div>
             <div class="card card-flush">
-                <div class="card-header pt-8">
-                    <div class="card-title">
+                @if (Auth::user()->role_id == 2)
+                    <div class="card-header pt-8">
+                        <div class="card-title">
 
-                        <div class="card-toolbar">
+                            <div class="card-toolbar">
 
-                            <div class="d-flex justify-content-end" data-kt-filemanager-table-toolbar="base">
+                                <div class="d-flex justify-content-end" data-kt-filemanager-table-toolbar="base">
+                                    <button type="button" class="btn btn-flex btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#kt_modal_upload" onclick="showUploadButton()">
+                                        <i class="fa fa-upload fs-2"><span class="path1"></span><span
+                                                class="path2"></span></i> Upload Music
+                                    </button>
+                                </div>
 
-                                <button type="button" class="btn btn-flex btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#kt_modal_upload">
-                                    <i class="fa fa-upload fs-2"><span class="path1"></span><span
-                                            class="path2"></span></i> Upload Music
+                            </div>
+                        </div>
+                        <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+
+                            <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                                <button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click"
+                                    data-kt-menu-placement="bottom-end">
+                                    <i class="fa-solid fa-file-export fs-2"> </i><span class="path1"></span><span
+                                        class="path2"></span>
+                                    Export
                                 </button>
-                            </div>
+                                <div id="kt_datatable_example_export_menu"
+                                    class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-200px py-4"
+                                    data-kt-menu="true">
+                                    <div class="menu-item px-3">
+                                        <a href="#" class="menu-link px-3" data-kt-export="copy">
+                                            Copy to clipboard
+                                        </a>
+                                    </div>
+                                    <div class="menu-item px-3">
+                                        <a href="#" class="menu-link px-3" data-kt-export="excel">
+                                            Export as Excel
+                                        </a>
+                                    </div>
+                                    <div class="menu-item px-3">
+                                        <a href="#" class="menu-link px-3" data-kt-export="csv">
+                                            Export as CSV
+                                        </a>
+                                    </div>
+                                    <div class="menu-item px-3">
+                                        <a href="#" class="menu-link px-3" data-kt-export="pdf">
+                                            Export as PDF
+                                        </a>
+                                    </div>
+                                </div>
 
+                                <div id="kt_datatable_example_buttons" class="d-none"></div>
+
+                            </div>
                         </div>
                     </div>
-                    <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-
-                        <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                            <button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click"
-                                data-kt-menu-placement="bottom-end">
-                                <i class="fa-solid fa-file-export fs-2"> </i><span class="path1"></span><span
-                                    class="path2"></span>
-                                Export
-                            </button>
-                            <div id="kt_datatable_example_export_menu"
-                                class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-200px py-4"
-                                data-kt-menu="true">
-                                <div class="menu-item px-3">
-                                    <a href="#" class="menu-link px-3" data-kt-export="copy">
-                                        Copy to clipboard
-                                    </a>
-                                </div>
-                                <div class="menu-item px-3">
-                                    <a href="#" class="menu-link px-3" data-kt-export="excel">
-                                        Export as Excel
-                                    </a>
-                                </div>
-                                <div class="menu-item px-3">
-                                    <a href="#" class="menu-link px-3" data-kt-export="csv">
-                                        Export as CSV
-                                    </a>
-                                </div>
-                                <div class="menu-item px-3">
-                                    <a href="#" class="menu-link px-3" data-kt-export="pdf">
-                                        Export as PDF
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div id="kt_datatable_example_buttons" class="d-none"></div>
-
-                        </div>
-                    </div>
-                </div>
+                @endif
                 <div class="card-body">
-                    <table class="table align-middle border rounded table-row-dashed fs-6 g-5" id="kt_datatable_example">
+                    <table class="table align-middle border rounded table-row-dashed fs-6 g-5 table-responsive"
+                        id="kt_datatable_example">
                         <thead>
 
                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase">
@@ -134,10 +119,10 @@
             <div class="modal-dialog modal-dialog-centered mw-650px">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2 class="fw-bold">Upload files</h2>
+                        <h2 class="fw-bold">Upload Your Song</h2>
 
                         <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            <i class="fa fa-close fs-1"><span class="path1"></span><span class="path2"></span></i>
                         </div>
                     </div>
 
@@ -145,37 +130,59 @@
                         <div class="form-group">
                             <div class="dropzone dropzone-queue mb-2" id="kt_modal_upload_dropzone">
                                 <div class="dropzone-panel mb-4">
-                                    <form action="{{ route('music.upload') }}" method="post" enctype="multipart/form-data">
+                                    <form id="musicUploadForm" action="{{ route('music.upload') }}" method="post"
+                                        enctype="multipart/form-data" data-default-action="{{ route('music.upload') }}">
                                         @csrf
+                                        <input type="hidden" id="song_id_input" name="song_id">
                                         <div class="fv-row mb-8">
-                                            <input type="text" placeholder="Song Title" name="song_title"
-                                                autocomplete="off" class="form-control bg-transparent" />
+                                            <input type="text" id="song_name_input" placeholder="Song Title"
+                                                name="song_title" autocomplete="off" class="form-control bg-transparent"
+                                                required />
                                         </div>
                                         <div class="fv-row mb-8">
-                                            <input type="text" placeholder="ISRC Code" name="isrc_code"
-                                                autocomplete="off" class="form-control bg-transparent" />
+                                            <input type="text" id="song_isrc_input" placeholder="ISRC Code"
+                                                name="isrc_code" autocomplete="off"
+                                                class="form-control bg-transparent" />
                                         </div>
+
                                         <div id="uploadFields">
-                                            <input type="file" name="music[]" id="musicInput" accept="audio/*" multiple style="display: none;">
+                                            <input type="file" name="music1" id="musicInput" accept="audio/*"
+                                                style="display: none;">
                                         </div>
+
                                         <div id="editFields" style="display: none;">
-                                            <input type="file" name="audio_file" id="editMusicInput" accept="audio/*" style="display: none;">
+                                            <audio id="audioPreview" controls style="width: 100%; display: none;">
+                                                <source id="audioPreviewSource" src="" type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+
+                                            <div class="mt-3">
+                                                <label for="editMusicInput" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-upload me-2"></i> Replace Audio File
+                                                </label>
+                                                <input type="file" name="music" id="editMusicInput"
+                                                    accept="audio/*" class="d-none">
+                                            </div>
                                         </div>
-                                        <button type="button" class="dropzone-select btn btn-sm btn-primary me-2"
+
+                                        <button type="button" id="upload_btn"
+                                            class="dropzone-select btn btn-sm btn-primary me-2"
                                             onclick="document.getElementById('musicInput').click()">
-                                            Attach Files
+                                            Attach Audio File
                                         </button>
+
                                         <div id="audioPreviews" style="margin-top: 15px;"></div>
 
-                                        <button type="submit" class="btn btn-sm btn-success mt-3">Upload All</button>
+                                        <button type="submit" id="uploadButton"
+                                            class="btn btn-sm btn-success mt-3">Upload All</button>
                                     </form>
+
+
                                 </div>
 
 
                             </div>
-                            {{--
-                                <span class="form-text fs-6 text-muted">Max file size is 1MB per
-                                    file.</span> --}}
+
                         </div>
                     </div>
                 </div>
@@ -187,7 +194,6 @@
     </div>
     @if (session('success'))
         <style>
-            /* SweetAlert Custom Styling */
             .swal2-popup {
                 border-radius: 12px !important;
                 max-width: 650px !important;
@@ -252,7 +258,6 @@
                 box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.3) !important;
             }
 
-            /* Add this to your CSS */
             .swal2-html-container li div::before {
                 font-family: 'Font Awesome 5 Free';
                 margin-right: 5px;
@@ -260,17 +265,14 @@
 
             .swal2-html-container li div span:nth-child(1)::before {
                 content: '\f1c1';
-                /* File icon */
             }
 
             .swal2-html-container li div span:nth-child(2)::before {
                 content: '\f0ce';
-                /* Type icon */
             }
 
             .swal2-html-container li div span:nth-child(3)::before {
                 content: '\f017';
-                /* Duration icon */
             }
         </style>
         <script>
@@ -321,7 +323,6 @@
         </script>
     @endif
     <script>
-        // Handle file selection for both upload and edit modes
         function handleFileSelection(files, isEditMode = false) {
             const previewsContainer = document.getElementById('audioPreviews');
             previewsContainer.innerHTML = '';
@@ -359,7 +360,6 @@
                         URL.revokeObjectURL(audioURL);
                     };
 
-                    // For edit mode, show current file info if available
                     if (isEditMode && currentFileInfo) {
                         const currentFile = document.createElement('p');
                         currentFile.textContent = `Current: ${currentFileInfo.name}`;
@@ -375,38 +375,14 @@
             }
         }
 
-        // Store current file info for edit mode
         let currentFileInfo = null;
 
-        // Main file input handler (for upload)
         document.getElementById('musicInput')?.addEventListener('change', function(e) {
             handleFileSelection(e.target.files);
         });
 
-        // Edit file input handler
         document.getElementById('editMusicInput')?.addEventListener('change', function(e) {
             handleFileSelection(e.target.files, true);
-        });
-
-        // When edit button is clicked (from your DataTable)
-        $(document).on('click', '.edit-btn', function() {
-            // Store current file info for reference
-            currentFileInfo = {
-                name: $(this).data('data-id'),
-                url: $(this).data('audio-url')
-            };
-
-            alert(currentFileInfo.name);
-
-            // If you want to show the current audio in the preview
-            const previewsContainer = document.getElementById('audioPreviews');
-            previewsContainer.innerHTML = `
-        <div class="track-preview">
-            <p style="margin-bottom: 5px; color: #888;">Current Track:</p>
-            <p style="font-weight: bold;">${currentFileInfo.name}</p>
-            <audio src="${currentFileInfo.url}" controls style="width: 100%"></audio>
-        </div>
-    `;
         });
 
         $(document).ready(function() {
@@ -450,7 +426,7 @@
                 ],
                 order: [
                     [3, 'desc']
-                ], // Default sort by upload date
+                ],
                 responsive: true,
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
@@ -466,9 +442,8 @@
             $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
 
-                let deleteUrl = $(this).data('url'); // Get delete URL
-                let row = $(this).closest('tr'); // Get the table row to remove on success
-
+                let deleteUrl = $(this).data('url');
+                let row = $(this).closest('tr');
                 Swal.fire({
                     title: "Are you sure?",
                     text: "You won't be able to recover this file!",
@@ -488,7 +463,42 @@
                             success: function(response) {
                                 Swal.fire("Deleted!", "Your file has been deleted.",
                                     "success");
-                                row.remove(); // Remove row from DataTable
+                                row.remove();
+                            },
+                            error: function(xhr) {
+                                Swal.fire("Error!", "Something went wrong.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Approve functionality
+            $(document).on('click', '.approve-btn', function(e) {
+                e.preventDefault();
+
+                let approveUrl = $(this).data('url');
+                let row = $(this).closest('tr');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You want to Approve this Song!",
+                    icon: "info",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, approve it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: approveUrl,
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(response) {
+                                Swal.fire("Approved!", "The Song has been Approved.",
+                                    "success");
+                                row.remove();
                             },
                             error: function(xhr) {
                                 Swal.fire("Error!", "Something went wrong.", "error");
@@ -499,5 +509,112 @@
             });
 
         });
+
+        //edit functionality
+        function editFunction(id, name = '', isrc = '', url = '', audioUrl = '') {
+            document.getElementById('upload_btn').classList.add('d-none');
+            try {
+                const modal = document.getElementById("kt_modal_upload");
+                const form = document.getElementById("musicUploadForm");
+
+                if (!modal || !form) {
+                    console.error("Modal or form element not found");
+                    return;
+                }
+
+                if (url) {
+                    form.action = url;
+                }
+
+                document.getElementById("song_id_input").value = id;
+                document.getElementById("song_name_input").value = name;
+                document.getElementById("song_isrc_input").value = isrc;
+
+                const audioPreview = document.getElementById("audioPreview");
+                const audioPreviewSource = document.getElementById("audioPreviewSource");
+
+                if (audioUrl) {
+                    audioPreviewSource.src = audioUrl;
+                    audioPreview.style.display = "block";
+                    audioPreview.load();
+                } else {
+                    audioPreview.style.display = "none";
+                }
+
+                document.getElementById("uploadFields").style.display = "none";
+                document.getElementById("editFields").style.display = "block";
+
+                document.getElementById("uploadButton").textContent = "Update Audio";
+
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+
+            } catch (error) {
+                console.error("Error in editFunction:", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            function initModalCleanup() {
+                const modal = document.getElementById('kt_modal_upload');
+
+                if (!modal) {
+                    console.error('Modal element (#kt_modal_upload) not found');
+                    return;
+                }
+
+                modal.addEventListener('hidden.bs.modal', function() {
+                    console.log('Modal closed - executing cleanup');
+
+                    try {
+                        const form = document.getElementById('musicUploadForm');
+                        if (form) {
+                            form.reset();
+                            form.action = form.getAttribute('data-default-action') || form.action;
+                            console.log('Form reset complete');
+                        } else {
+                            console.warn('Form (#musicUploadForm) not found');
+                        }
+
+                        const songIdInput = document.getElementById('song_id_input');
+                        if (songIdInput) {
+                            songIdInput.value = '';
+                            console.log('Song ID cleared');
+                        }
+
+                        const audioPreview = document.getElementById('audioPreview');
+                        if (audioPreview) {
+                            audioPreview.style.display = 'none';
+                            console.log('Audio preview hidden');
+                        }
+
+                        const uploadFields = document.getElementById('uploadFields');
+                        const editFields = document.getElementById('editFields');
+
+                        if (uploadFields) uploadFields.style.display = 'block';
+                        if (editFields) editFields.style.display = 'none';
+
+                        console.log('UI sections toggled');
+
+                        const uploadButton = document.getElementById('uploadButton');
+                        if (uploadButton) {
+                            uploadButton.textContent = 'Upload All';
+                            console.log('Button text reset');
+                        }
+
+                    } catch (error) {
+                        console.error('Cleanup error:', error);
+                    }
+                });
+
+                console.log('Modal cleanup handler initialized');
+            }
+
+            initModalCleanup();
+        });
+
+        function showUploadButton() {
+            document.getElementById('upload_btn').classList.remove('d-none');
+        }
     </script>
 @endsection
