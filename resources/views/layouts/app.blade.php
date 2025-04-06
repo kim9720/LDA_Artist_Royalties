@@ -109,6 +109,10 @@
         <script src="{{ asset('assets/js/custom/utilities/modals/upgrade-plan.js') }}"></script>
         <script src="{{ asset('assets/js/custom/utilities/modals/create-app.js') }}"></script>
         <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/account/settings/deactivate-account.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/account/settings/profile-details.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/account/settings/signin-methods.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/account/billing/general.js') }}"></script>
 
         <script src="{{ asset('assets/js/custom/apps/file-manager/list.js') }}"></script>
 

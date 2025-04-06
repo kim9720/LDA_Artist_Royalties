@@ -29,6 +29,10 @@ class User extends Authenticatable
         'account_number',
         'password',
         'role_id',
+        'country',
+        'currency',
+        'communication_method',
+        'profile_picture'
     ];
 
     public function role()

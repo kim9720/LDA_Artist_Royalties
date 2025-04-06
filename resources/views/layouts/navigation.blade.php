@@ -735,7 +735,7 @@ fs-2 text-info"></i>
                             <div class="menu-content d-flex align-items-center px-3">
                                 <!--begin::Avatar-->
                                 <div class="symbol symbol-50px me-5">
-                                    <img alt="Logo" src="../assets/media/avatars/300-1.jpg" />
+                                    <img alt="Logo" src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/' . Auth::user()->profile_picture) : asset('assets/media/avatars/avata1.png') }}" />
                                 </div>
                                 <!--end::Avatar-->
 
@@ -761,7 +761,7 @@ fs-2 text-info"></i>
 
                         <!--begin::Menu item-->
                         <div class="menu-item px-5">
-                            <a href="https://preview.keenthemes.com/metronic8/demo9/account/overview.html"
+                            <a href="{{route('profile.profile_show')}}"
                                 class="menu-link px-5">
                                 My Profile
                             </a>
@@ -770,7 +770,7 @@ fs-2 text-info"></i>
                         <div class="separator my-2"></div>
 
                         <div class="menu-item px-5 my-1">
-                            <a href="https://preview.keenthemes.com/metronic8/demo9/account/settings.html"
+                            <a href="{{route('profile.profile_settings')}}"
                                 class="menu-link px-5">
                                 Account Settings
                             </a>

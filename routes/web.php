@@ -17,6 +17,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile_show', [ProfileController::class, 'profileShow'])->name('profile.profile_show');
+    Route::get('/profile_settings', [ProfileController::class, 'profileSettings'])->name('profile.profile_settings');
+    Route::get('/profile_bill', [ProfileController::class, 'profileBill'])->name('profile.profile_bill');
+    Route::post('/profile_update_basic', [ProfileController::class, 'editBasicuserInfo'])->name('profile.profile_update_basic');
+
 
     // song Route
     Route::get('/song_upload', [SongController::class, 'upload'])->name('song_upload');
@@ -30,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/audio_files/{id}', [MusicController::class, 'destroy'])->name('audio_files.destroy');
     Route::post('/audio_files_edit', [MusicController::class, 'edit'])->name('audio_files.edit');
     Route::post('/aprove_song/{id}', [MusicController::class, 'approveSong'])->name('audio_files.aprove_song');
+
+
 });
 
 require __DIR__ . '/auth.php';
