@@ -116,7 +116,7 @@
                              </div>
                          </div>
                          <div class="menu-item">
-                             <a class="menu-link" href="{{ route('dashboard') }}" data-bs-toggle="tooltip"
+                             <a class="menu-link" href="{{ route('admin.show_users') }}" data-bs-toggle="tooltip"
                                  data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                  <span class="menu-title">
                                      Managemnt

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 
 class ProfileController extends Controller
@@ -58,8 +61,7 @@ class ProfileController extends Controller
                 }
                 $path = $request->file('profile_picture')->store('profile_pictures', 'public');
                 $user->profile_picture = basename($path);
-            }
-            elseif ($request->has('avatar_remove') && $request->input('avatar_remove') == '1') {
+            } elseif ($request->has('avatar_remove') && $request->input('avatar_remove') == '1') {
                 if ($user->profile_picture) {
                     Storage::delete('public/profile_pictures/' . $user->profile_picture);
                     $user->profile_picture = null;
@@ -86,38 +88,122 @@ class ProfileController extends Controller
     }
 
 
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function updateEmail(Request $request)
     {
-        $request->user()->fill($request->validated());
+        // Manual validation
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
+            'confirmemailpassword' => 'required|string'
+        ]);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($validator->fails()) {
+            Log::info("imeingia humu 1");
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $request->user()->save();
+        if (!Hash::check($request->confirmemailpassword, auth()->user()->password)) {
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+            return response()->json([
+                'success' => false,
+                'message' => 'The provided password is incorrect.'
+            ], 401);
+        }
+
+        $user = $request->user();
+        $user->email = $request->email;
+        $user->email_verified_at = null;
+
+        if ($user->save()) {
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email updated Susseccifully.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update email.'
+        ], 500);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'currentpassword' => 'required|string',
+            'newpassword' => 'required|string|min:8',
+            'confirmpassword' => 'required|string'
+        ],);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Verify current password
+        if (!Hash::check($request->currentpassword, auth()->user()->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect'
+            ], 401);
+        }
+
+        // Update password
+        $user = $request->user();
+        $user->password = Hash::make($request->newpassword);
+
+        if ($user->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password updated successfully!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update password'
+        ], 500);
     }
 
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'password' => 'required|string'
         ]);
 
-        $user = $request->user();
+        if (!Hash::check($request->password, Auth::user()->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The provided password is incorrect.'
+            ], 401);
+        }
 
-        Auth::logout();
+        try {
+            $user = $request->user();
+            Auth::logout();
+            $user->delete();
 
-        $user->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Account deleted successfully.',
+                'redirect' => url('/')
+            ]);
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        } catch (\Exception $e) {
+            Log::error('Account deletion failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete account. Please try again.'
+            ], 500);
+        }
     }
 
     public function profileShow()
@@ -133,6 +219,8 @@ class ProfileController extends Controller
     }
     public function profileBill()
     {
-        return view('profile.profile_bill');
+        $profile = Auth::user();
+
+        return view('profile.profile_bill', compact('profile'));
     }
 }
