@@ -7,6 +7,8 @@ use App\Models\AudioFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use getID3;
+use FFMpeg\FFMpeg;
+
 use Illuminate\Support\Facades\Auth;
 // use DataTables;
 use Illuminate\Container\Attributes\Log;
@@ -108,63 +110,62 @@ class MusicController extends Controller
 
         return $response;
     }
-    private function generateFingerprint($filePath)
-    {
-        if (!$filePath || !file_exists($filePath)) {
-            \Log::error("Fingerprinting failed: File does not exist - " . $filePath);
-            return null;
-        }
+    // private function generateFingerprint($filePath)
+    // {
+    //     if (!$filePath || !file_exists($filePath)) {
+    //         \Log::error("Fingerprinting failed: File does not exist - " . $filePath);
+    //         return null;
+    //     }
 
-        if (!is_readable($filePath)) {
-            \Log::error("Fingerprinting failed: File is not readable - " . $filePath);
-            return null;
-        }
+    //     if (!is_readable($filePath)) {
+    //         \Log::error("Fingerprinting failed: File is not readable - " . $filePath);
+    //         return null;
+    //     }
 
-        // $fpcalcPath = env('FPCALC_PATH', 'C:\fpcalc\fpcalc.exe');
-        $fpcalcPath = env('FPCALC_PATH');
+    //     $fpcalcPath = env('FPCALC_PATH', 'C:\fpcalc\fpcalc.exe');
 
-        if (!file_exists($fpcalcPath)) {
-            \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
-            return null;
-        }
+    //     if (!file_exists($fpcalcPath)) {
+    //         \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
+    //         return null;
+    //     }
 
-        $command = sprintf(
-            '%s -json %s 2>&1',
-            escapeshellarg($fpcalcPath),
-            escapeshellarg($filePath)
-        );
+    //     $command = sprintf(
+    //         '%s -json %s 2>&1',
+    //         escapeshellarg($fpcalcPath),
+    //         escapeshellarg($filePath)
+    //     );
 
-        \Log::debug("Executing fingerprint command: {$command}");
+    //     \Log::debug("Executing fingerprint command: {$command}");
 
-        $output = shell_exec($command);
-        $exitCode = $this->getLastCommandExitCode();
+    //     $output = shell_exec($command);
+    //     $exitCode = $this->getLastCommandExitCode();
 
-        if ($exitCode !== 0 || $output === null) {
-            \Log::error("Fingerprinting failed", [
-                'exit_code' => $exitCode,
-                'output' => $output,
-                'file' => $filePath
-            ]);
-            return null;
-        }
+    //     if ($exitCode !== 0 || $output === null) {
+    //         \Log::error("Fingerprinting failed", [
+    //             'exit_code' => $exitCode,
+    //             'output' => $output,
+    //             'file' => $filePath
+    //         ]);
+    //         return null;
+    //     }
 
-        $result = json_decode(trim($output), true);
+    //     $result = json_decode(trim($output), true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            \Log::error("Fingerprinting JSON parse failed", [
-                'error' => json_last_error_msg(),
-                'output' => $output
-            ]);
-            return null;
-        }
+    //     if (json_last_error() !== JSON_ERROR_NONE) {
+    //         \Log::error("Fingerprinting JSON parse failed", [
+    //             'error' => json_last_error_msg(),
+    //             'output' => $output
+    //         ]);
+    //         return null;
+    //     }
 
-        if (empty($result['fingerprint'])) {
-            \Log::error("Fingerprinting failed: Empty fingerprint", ['result' => $result]);
-            return null;
-        }
+    //     if (empty($result['fingerprint'])) {
+    //         \Log::error("Fingerprinting failed: Empty fingerprint", ['result' => $result]);
+    //         return null;
+    //     }
 
-        return $result['fingerprint'];
-    }
+    //     return $result['fingerprint'];
+    // }
 
     // private function getLastCommandExitCode()
     // {
@@ -173,6 +174,13 @@ class MusicController extends Controller
     //     }
     //     return shell_exec('echo $?');
     // }
+
+    private function generateFingerprint($filePath) {
+        $ffmpeg = FFMpeg::create();
+        $audio = $ffmpeg->open($filePath);
+        $waveform = $audio->waveform();
+        return md5_file($filePath); // Simple hash fallback
+    }
     private function getLastCommandExitCode()
     {
         return (int) shell_exec('echo $?');
