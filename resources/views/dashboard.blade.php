@@ -13,7 +13,7 @@
                                     <span class="fs-2hx fw-bold text-gray-800 me-2 lh-1 ls-n2">{{$userAudioCount}}</span>
 
                                     <span class="badge badge-light-success fs-base">
-                                        {{formatDecimal($percentage)}} %
+                                        {{$percentage}} %
                                     </span>
                                 </div>
 
