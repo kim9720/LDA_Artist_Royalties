@@ -120,7 +120,8 @@ class MusicController extends Controller
             return null;
         }
 
-        $fpcalcPath = env('FPCALC_PATH', 'C:\fpcalc\fpcalc.exe');
+        // $fpcalcPath = env('FPCALC_PATH', 'C:\fpcalc\fpcalc.exe');
+        $fpcalcPath = env('FPCALC_PATH');
 
         if (!file_exists($fpcalcPath)) {
             \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
