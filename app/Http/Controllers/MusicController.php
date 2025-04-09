@@ -165,14 +165,17 @@ class MusicController extends Controller
         return $result['fingerprint'];
     }
 
+    // private function getLastCommandExitCode()
+    // {
+    //     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+    //         return $this->getWindowsExitCode();
+    //     }
+    //     return shell_exec('echo $?');
+    // }
     private function getLastCommandExitCode()
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            return $this->getWindowsExitCode();
-        }
-        return shell_exec('echo $?');
+        return (int) shell_exec('echo $?');
     }
-
     private function getWindowsExitCode()
     {
         $output = shell_exec('echo %ERRORLEVEL%');
