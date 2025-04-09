@@ -21,8 +21,7 @@ class UserController extends Controller
     public function getUsers()
     {
         $users = User::select(['id', 'name', 'email', 'phone', 'role_id'])
-        // ->whereNot('id', Auth::user()->id)
-        ;
+        ->whereNot('id', Auth::user()->id);
 
         return DataTables::of($users)
             ->addIndexColumn()

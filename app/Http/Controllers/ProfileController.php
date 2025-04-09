@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\AudioFile;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,12 +22,23 @@ class ProfileController extends Controller
     {
         $userAudioCount = AudioFile::where('user_id', Auth::id())->count();
         $totalAudioCount = AudioFile::count();
+        $notAprovedSong = AudioFile::where('approve_status', 0)->count();
+        $total_artist = User::where('role_id', 2)->count();
 
         // Prevent division by zero
         $percentage = $totalAudioCount > 0 ? ($userAudioCount / $totalAudioCount) * 100 : 0;
 
+        $percentage_not_approved_song = $totalAudioCount > 0 ? ($notAprovedSong / $totalAudioCount) * 100 : 0;
 
-        return view('dashboard', compact('userAudioCount', 'percentage'));
+
+        return view('dashboard', compact(
+            'userAudioCount',
+            'percentage',
+            'totalAudioCount',
+            'total_artist',
+            'notAprovedSong',
+            'percentage_not_approved_song'
+        ));
     }
 
 
@@ -196,7 +208,6 @@ class ProfileController extends Controller
                 'message' => 'Account deleted successfully.',
                 'redirect' => url('/')
             ]);
-
         } catch (\Exception $e) {
             Log::error('Account deletion failed: ' . $e->getMessage());
             return response()->json([

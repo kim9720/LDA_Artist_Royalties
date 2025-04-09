@@ -703,76 +703,47 @@
             </div>
             @elseif (Auth::user()->role_id == 1)
             <div class="row gx-5 gx-xl-10 mb-xl-10">
-                <!--begin::Col-->
                 <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-10">
 
-                    <!--begin::Card widget 16-->
                     <div class="card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-center border-0 h-md-50 mb-5 mb-xl-10"
                         style="background-color: #080655">
-                        <!--begin::Header-->
                         <div class="card-header pt-5">
-                            <!--begin::Title-->
                             <div class="card-title d-flex flex-column">
-                                <!--begin::Amount-->
-                                <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">69</span>
-                                <!--end::Amount-->
+                                <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">{{$totalAudioCount}}</span>
 
-                                <!--begin::Subtitle-->
-                                <span class="text-white opacity-50 pt-1 fw-semibold fs-6">Active
-                                    Projects</span>
-                                <!--end::Subtitle-->
+                                <span class="text-white opacity-50 pt-1 fw-semibold fs-6">Uploaded Songs</span>
                             </div>
-                            <!--end::Title-->
                         </div>
-                        <!--end::Header-->
 
-                        <!--begin::Card body-->
                         <div class="card-body d-flex align-items-end pt-0">
-                            <!--begin::Progress-->
                             <div class="d-flex align-items-center flex-column mt-3 w-100">
                                 <div
                                     class="d-flex justify-content-between fw-bold fs-6 text-white opacity-50 w-100 mt-auto mb-2">
-                                    <span>43 Pending</span>
-                                    <span>72%</span>
+                                    <span>{{$notAprovedSong}} Pending for Approval</span>
+                                    <span>{{formatDecimal($percentage_not_approved_song)}}%</span>
                                 </div>
 
                                 <div class="h-8px mx-3 w-100 bg-light-danger rounded">
                                     <div class="bg-danger rounded h-8px" role="progressbar"
-                                        style="width: 72%;" aria-valuenow="50" aria-valuemin="0"
+                                        style="width: {{$percentage_not_approved_song}}%;" aria-valuenow="50" aria-valuemin="0"
                                         aria-valuemax="100"></div>
                                 </div>
                             </div>
-                            <!--end::Progress-->
                         </div>
-                        <!--end::Card body-->
                     </div>
-                    <!--end::Card widget 16-->
 
-                    <!--begin::Card widget 7-->
                     <div class="card card-flush h-md-50 mb-5 mb-xl-10">
-                        <!--begin::Header-->
                         <div class="card-header pt-5">
-                            <!--begin::Title-->
                             <div class="card-title d-flex flex-column">
-                                <!--begin::Amount-->
-                                <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">357</span>
-                                <!--end::Amount-->
+                                <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">{{$total_artist}}</span>
 
-                                <!--begin::Subtitle-->
-                                <span class="text-gray-500 pt-1 fw-semibold fs-6">Professionals</span>
-                                <!--end::Subtitle-->
+                                <span class="text-gray-500 pt-1 fw-semibold fs-6">Artists</span>
                             </div>
-                            <!--end::Title-->
                         </div>
-                        <!--end::Header-->
 
-                        <!--begin::Card body-->
                         <div class="card-body d-flex flex-column justify-content-end pe-0">
-                            <!--begin::Title-->
-                            <span class="fs-6 fw-bolder text-gray-800 d-block mb-2">Today’s Heroes</span>
-                            <!--end::Title-->
+                            <span class="fs-6 fw-bolder text-gray-800 d-block mb-2">Active Artists</span>
 
-                            <!--begin::Users group-->
                             <div class="symbol-group symbol-hover flex-nowrap">
                                 <div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip"
                                     title="Alan Warden">
@@ -806,121 +777,69 @@
                                     <span class="symbol-label bg-dark text-gray-300 fs-8 fw-bold">+42</span>
                                 </a>
                             </div>
-                            <!--end::Users group-->
                         </div>
-                        <!--end::Card body-->
                     </div>
-                    <!--end::Card widget 7-->
                 </div>
-                <!--end::Col-->
 
-                <!--begin::Col-->
                 <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-10">
 
-                    <!--begin::Card widget 17-->
                     <div class="card card-flush h-md-50 mb-5 mb-xl-10">
-                        <!--begin::Header-->
                         <div class="card-header pt-5">
-                            <!--begin::Title-->
                             <div class="card-title d-flex flex-column">
-                                <!--begin::Info-->
                                 <div class="d-flex align-items-center">
-                                    <!--begin::Currency-->
                                     <span
-                                        class="fs-4 fw-semibold text-gray-500 me-1 align-self-start">$</span>
-                                    <!--end::Currency-->
+                                        class="fs-4 fw-semibold text-gray-500 me-1 align-self-start">TZS</span>
 
-                                    <!--begin::Amount-->
                                     <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">69,700</span>
-                                    <!--end::Amount-->
 
-                                    <!--begin::Badge-->
                                     <span class="badge badge-light-success fs-base">
                                         <i class="ki-duotone ki-arrow-up fs-5 text-success ms-n1"><span
                                                 class="path1"></span><span class="path2"></span></i>
                                         2.2%
                                     </span>
-                                    <!--end::Badge-->
                                 </div>
-                                <!--end::Info-->
 
-                                <!--begin::Subtitle-->
-                                <span class="text-gray-500 pt-1 fw-semibold fs-6">Projects Earnings in
+                                <span class="text-gray-500 pt-1 fw-semibold fs-6">Artists Earnings in
                                     April</span>
-                                <!--end::Subtitle-->
                             </div>
-                            <!--end::Title-->
                         </div>
-                        <!--end::Header-->
 
-                        <!--begin::Card body-->
                         <div class="card-body pt-2 pb-4 d-flex flex-wrap align-items-center">
-                            <!--begin::Chart-->
                             <div class="d-flex flex-center me-5 pt-2">
                                 <div id="kt_card_widget_17_chart" style="min-width: 70px; min-height: 70px"
                                     data-kt-size="70" data-kt-line="11">
                                 </div>
                             </div>
-                            <!--end::Chart-->
 
-                            <!--begin::Labels-->
                             <div class="d-flex flex-column content-justify-center flex-row-fluid">
-                                <!--begin::Label-->
                                 <div class="d-flex fw-semibold align-items-center">
-                                    <!--begin::Bullet-->
                                     <div class="bullet w-8px h-3px rounded-2 bg-success me-3"></div>
-                                    <!--end::Bullet-->
 
-                                    <!--begin::Label-->
-                                    <div class="text-gray-500 flex-grow-1 me-4">Leaf CRM</div>
-                                    <!--end::Label-->
+                                    <div class="text-gray-500 flex-grow-1 me-4">Radio</div>
 
-                                    <!--begin::Stats-->
-                                    <div class="fw-bolder text-gray-700 text-xxl-end">$7,660</div>
-                                    <!--end::Stats-->
+                                    <div class="fw-bolder text-gray-700 text-xxl-end">Tzs 7,660</div>
                                 </div>
-                                <!--end::Label-->
 
-                                <!--begin::Label-->
                                 <div class="d-flex fw-semibold align-items-center my-3">
-                                    <!--begin::Bullet-->
                                     <div class="bullet w-8px h-3px rounded-2 bg-primary me-3"></div>
-                                    <!--end::Bullet-->
 
-                                    <!--begin::Label-->
-                                    <div class="text-gray-500 flex-grow-1 me-4">Mivy App</div>
-                                    <!--end::Label-->
+                                    <div class="text-gray-500 flex-grow-1 me-4">TV</div>
 
-                                    <!--begin::Stats-->
-                                    <div class="fw-bolder text-gray-700 text-xxl-end">$2,820</div>
-                                    <!--end::Stats-->
+                                    <div class="fw-bolder text-gray-700 text-xxl-end">Tzs 2,820</div>
                                 </div>
-                                <!--end::Label-->
 
-                                <!--begin::Label-->
                                 <div class="d-flex fw-semibold align-items-center">
-                                    <!--begin::Bullet-->
                                     <div class="bullet w-8px h-3px rounded-2 me-3"
                                         style="background-color: #E4E6EF"></div>
-                                    <!--end::Bullet-->
 
-                                    <!--begin::Label-->
                                     <div class="text-gray-500 flex-grow-1 me-4">Others</div>
-                                    <!--end::Label-->
 
-                                    <!--begin::Stats-->
-                                    <div class=" fw-bolder text-gray-700 text-xxl-end">$45,257</div>
-                                    <!--end::Stats-->
+                                    <div class=" fw-bolder text-gray-700 text-xxl-end">Tzs 45,257</div>
                                 </div>
-                                <!--end::Label-->
                             </div>
-                            <!--end::Labels-->
                         </div>
-                        <!--end::Card body-->
                     </div>
-                    <!--end::Card widget 17-->
-
-                    <!--begin::List widget 25-->
+                   
                     <div class="card card-flush h-lg-50">
                         <!--begin::Header-->
                         <div class="card-header pt-5">

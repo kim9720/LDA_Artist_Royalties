@@ -96,10 +96,10 @@
                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase">
                                 <th class="min-w-100px">Artist</th>
                                 <th class="min-w-100px">Song Name</th>
-                                {{-- <th class="min-w-100px">Status</th> --}}
                                 <th class="min-w-100px">Uploaded Date</th>
                                 {{-- <th class="text-end min-w-75px">No. Listiner</th> --}}
                                 <th class="text-end min-w-75px">Audio File</th>
+                                <th class="min-w-100px">Status</th>
                                 <th class="text-end min-w-100px pe-5">Action</th>
                             </tr>
                         </thead>
@@ -415,6 +415,10 @@
                         data: 'audio_player',
                         name: 'audio_player',
                         className: 'text-end'
+                    },
+                     {
+                        data: 'status',
+                        name: 'status'
                     },
                     {
                         data: 'action',

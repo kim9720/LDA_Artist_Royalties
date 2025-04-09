@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use getID3;
 use Illuminate\Support\Facades\Auth;
-use DataTables;
+// use DataTables;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\DataTables ;
 
 class MusicController extends Controller
 {
@@ -214,6 +215,16 @@ class MusicController extends Controller
                     </audio>
                 ';
             })
+            ->addColumn('status', function ($file) {
+                if (auth()->user()->role_id == 1) {
+
+
+                    $status = $file->approve_status == 1 ? 'Approved' : 'Pending';
+                    $color = $status === 'Approved' ? 'success' : 'danger';
+
+                    return '<span class="badge-light-' . e($color) . '">' . e(ucfirst($status)) . '</span>';
+                }
+            })
             ->addColumn('action', function ($file) {
                 $buttons = '<div class="d-flex justify-content-end">';
 
@@ -254,7 +265,7 @@ class MusicController extends Controller
                 $buttons .= '</div>';
                 return $buttons;
             })
-            ->rawColumns(['audio_player', 'action'])
+            ->rawColumns(['audio_player', 'action', 'status'])
             ->make(true);
     }
 
@@ -400,5 +411,45 @@ class MusicController extends Controller
                 'message' => 'Error Approving file: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getApprovedSong()
+    {
+        $query = AudioFile::when(auth()->user()->role_id != 1, function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+            ->with('user')
+            ->where('approve_status', 1)
+            ->select(['audio_files.*']);
+        return DataTables::of($query)
+            ->addColumn('artist', function ($file) {
+                return $file->user->artist_name ?? 'N/A';
+            })
+            ->addColumn('song_name', function ($file) {
+                return pathinfo($file->original_name, PATHINFO_FILENAME);
+            })
+            ->addColumn('uploaded_date', function ($file) {
+                return $file->created_at->format('M d, Y');
+            })
+            ->addColumn('listeners', function ($file) {
+                return 12;
+            })
+            ->addColumn('status', function ($file) {
+                return 'Approved';
+            })
+            ->addColumn('audio_file', function ($file) {
+                $url = asset('storage/' . str_replace('public/', '', $file->path));
+                return '
+                    <audio controls style="width: 300px; height: 30px;">
+                        <source src="' . $url . '" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                ';
+            })
+            // ->addColumn('action', function ($track) {
+            //     return ''; // Add action buttons if needed
+            // })
+            ->rawColumns(['audio_file',  'status'])
+            ->make(true);
     }
 }

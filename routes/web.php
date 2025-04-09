@@ -34,9 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/audio_files/data', [MusicController::class, 'getAudioFiles'])->name('audio_files.data');
     Route::delete('/audio_files/{id}', [MusicController::class, 'destroy'])->name('audio_files.destroy');
     Route::post('/audio_files_edit', [MusicController::class, 'edit'])->name('audio_files.edit');
-    Route::post('/aprove_song/{id}', [MusicController::class, 'approveSong'])->name('audio_files.aprove_song');
+    Route::get('/approved_song', [MusicController::class, 'getApprovedSong'])->name('approved_song.get');
 
     //admin
+    Route::post('/aprove_song/{id}', [MusicController::class, 'approveSong'])->name('audio_files.aprove_song');
     Route::get('/show_users', [UserController::class, 'index'])->name('admin.show_users');
     Route::get('/get_users', [UserController::class, 'getUsers'])->name('admin.get_users');
     Route::post('/users_destroy/{id}', [UserController::class, 'userDelete'])->name('admin.users_destroy');
