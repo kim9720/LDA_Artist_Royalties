@@ -102,7 +102,7 @@ class MusicController extends Controller
         if (!empty($errors)) {
             $response = $response->with([
                 'error' => $errors[0],
-                'old_input' => $request->except('music')
+                'old_input' => $request->except('music1')
             ]);
         }
 
