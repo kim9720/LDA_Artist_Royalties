@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use getID3;
 use FFMpeg\FFMpeg;
-
+use FFMpeg\FFProbe;
 use Illuminate\Support\Facades\Auth;
 // use DataTables;
 use Illuminate\Container\Attributes\Log;
@@ -176,10 +176,20 @@ class MusicController extends Controller
     // }
 
     private function generateFingerprint($filePath) {
-        $ffmpeg = FFMpeg::create();
-        $audio = $ffmpeg->open($filePath);
-        $waveform = $audio->waveform();
-        return md5_file($filePath); // Simple hash fallback
+        $ffmpeg = FFMpeg::create([
+            'ffmpeg.binaries'  => '/usr/bin/ffmpeg',  // Path to ffmpeg
+            'ffprobe.binaries' => '/usr/bin/ffprobe', // Path to ffprobe
+            'timeout'          => 3600,               // Increase timeout
+        ]);
+
+        try {
+            $audio = $ffmpeg->open($filePath);
+            $waveform = $audio->waveform();
+            return md5_file($filePath); // Fallback hash
+        } catch (\Exception $e) {
+            \Log::error("FFmpeg error: " . $e->getMessage());
+            return null;
+        }
     }
     private function getLastCommandExitCode()
     {
