@@ -720,7 +720,7 @@
                                 <div
                                     class="d-flex justify-content-between fw-bold fs-6 text-white opacity-50 w-100 mt-auto mb-2">
                                     <span>{{$notAprovedSong}} Pending for Approval</span>
-                                    <span>{{formatDecimal($percentage_not_approved_song)}}%</span>
+                                    <span>{{$percentage_not_approved_song}}%</span>
                                 </div>
 
                                 <div class="h-8px mx-3 w-100 bg-light-danger rounded">
@@ -839,7 +839,7 @@
                             </div>
                         </div>
                     </div>
-                   
+
                     <div class="card card-flush h-lg-50">
                         <!--begin::Header-->
                         <div class="card-header pt-5">
