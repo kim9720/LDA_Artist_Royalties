@@ -116,8 +116,12 @@
         <script src="{{ asset('assets/js/custom/account/settings/profile-details.js') }}"></script>
         <script src="{{ asset('assets/js/custom/account/settings/signin-methods.js') }}"></script>
         <script src="{{ asset('assets/js/custom/account/billing/general.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/inbox/listing.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/inbox/compose.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/inbox/reply.js') }}"></script>
 
-        <script src="{{ asset('assets/js/custom/apps/file-manager/list.js') }}"></script>
+        {{-- <script src="{{ asset('assets/js/custom/apps/file-manager/list.js') }}"></script> --}}
+
 
 
 
