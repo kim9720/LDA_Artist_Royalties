@@ -83,7 +83,7 @@ var KTAppInboxCompose = (function () {
                 toolbar: [
                     [{ header: [1, 2, !1] }],
                     ["bold", "italic", "underline"],
-                    ["image", "code-block"],
+                    
                 ],
             },
             placeholder: "Type your text here...",

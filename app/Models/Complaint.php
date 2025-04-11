@@ -29,7 +29,7 @@ class Complaint extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function attachments()
+    public function getAttachments()
     {
         return $this->hasMany(Attachment::class);
     }
@@ -38,7 +38,7 @@ class Complaint extends Model
     {
         $path = $file->store('complaints/attachments');
 
-        return $this->attachments()->create([
+        return $this->getAttachments()->create([
             'original_name' => $file->getClientOriginalName(),
             'path' => $path,
             'mime_type' => $file->getMimeType(),

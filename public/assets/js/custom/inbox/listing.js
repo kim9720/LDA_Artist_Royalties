@@ -62,7 +62,7 @@ var KTAppComplaintsListing = (function () {
                                 <span class="fw-bold">${data.subject}</span>
                                 <span class="fw-bold d-none d-md-inline"> - </span>
                                 <span class="d-none d-md-inline text-muted">
-                                    ${data.content.substring(0, 60)}${data.content.length > 60 ? '...' : ''}
+                                    ${stripHtml(data.content).substring(0, 60).trim()}${stripHtml(data.content).length > 60 ? '...' : ''}
                                 </span>
                             </a>
                         </div>
@@ -104,3 +104,15 @@ var KTAppComplaintsListing = (function () {
 KTUtil.onDOMContentLoaded(function () {
     KTAppComplaintsListing.init();
 });
+
+function stripHtml(html) {
+    if (!html) return '';
+
+    // First decode HTML entities
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    const decoded = txt.value;
+
+    // Then remove all tags
+    return decoded.replace(/<[^>]+>/g, '');
+}
