@@ -41,9 +41,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/complaints_list', [ComplaintController::class, 'complaintListPage'])->name('complaints.show');
     Route::get('/complaints_compose', [ComplaintController::class, 'complaintComposePage'])->name('complaints.compose');
     Route::post('/complaints_compose', [ComplaintController::class, 'complaintStore'])->name('complaints.store');
-    Route::get('complaints/datatable', [ComplaintController::class, 'getComplaints'])->name('complaints.datatable');
+    Route::get('complaints_datatable', [ComplaintController::class, 'getComplaints'])->name('complaints.datatable');
     Route::get('/complaints_show/{complaint}', [ComplaintController::class, 'show'])->name('complaints.get');
-
+    Route::get('/complaints_mark_read/{complaint}', [ComplaintController::class, 'markReaded'])->name('complaints.mark_read');
+    Route::get('/complaints_marked_list', [ComplaintController::class, 'complaintMarkedPage'])->name('complaints.marked_show');
+    Route::get('complaints_maked', [ComplaintController::class, 'getMarkedComplaints'])->name('complaints.marked_get');
+    Route::post('complaints_delete', [ComplaintController::class, 'deleteComplaints'])->name('complaints.delete');
 
 
     //admin

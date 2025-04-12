@@ -38,18 +38,17 @@ var KTAppInboxCompose = (function () {
                 processData: false,
                 contentType: false,
                 success: function(data) {
-                    // Hide loading indicator
                     sendButton.removeAttr("data-kt-indicator");
 
-                    // Show success message
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',
                             text: 'Complaint submitted successfully!'
+                        }).then((result) => {
+                            window.location.href = '/complaints_list';
                         });
 
-                        // Reset form
                         $(e).find('[name="compose_subject"]').val('');
                         quillEditor.root.innerHTML = '';
                         dropzoneInstance.removeAllFiles(true);
@@ -83,7 +82,7 @@ var KTAppInboxCompose = (function () {
                 toolbar: [
                     [{ header: [1, 2, !1] }],
                     ["bold", "italic", "underline"],
-                    
+
                 ],
             },
             placeholder: "Type your text here...",
