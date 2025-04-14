@@ -122,7 +122,8 @@ class MusicController extends Controller
             return null;
         }
 
-        $fpcalcPath = env('FPCALC_PATH', 'C:\fpcalc\fpcalc.exe');
+        // $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
+        $fpcalcPath = base_path('fpcalc');
 
         if (!file_exists($fpcalcPath)) {
             \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
@@ -191,7 +192,7 @@ class MusicController extends Controller
     //         return null;
     //     }
     // // }
-    // private function getLastCommandExitCode()    
+    // private function getLastCommandExitCode()
     // {
     //     return (int) shell_exec('echo $?');
     // }
