@@ -30,23 +30,19 @@ class MusicController extends Controller
 
         if ($request->hasFile('music1')) {
             $file = $request->file('music1');
+            $originalName = $file->getClientOriginalName();
 
             try {
-                // Generate safe filename
-                $originalName = $file->getClientOriginalName();
                 $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
                     . '.' . $file->extension();
 
-                // Store file with timestamp prefix
                 $path = $file->storeAs('music', time() . '_' . $safeName);
                 $fullPath = Storage::path($path);
 
-                // Verify storage success
                 if (!Storage::exists($path)) {
                     throw new \Exception("File storage failed: {$path}");
                 }
 
-                // Generate fingerprint
                 $fingerprint = $this->generateFingerprint($fullPath);
                 if (!$fingerprint) {
                     Storage::delete($path);
@@ -75,18 +71,19 @@ class MusicController extends Controller
                     'song_title' => $validated['song_title'],
                     'isrc_code' => $validated['isrc_code'],
                     'mime_type' => $file->getMimeType(),
-                    // 'bitrate' => $fileInfo['audio']['bitrate'] ?? null,
-                    // 'sample_rate' => $fileInfo['audio']['sample_rate'] ?? null,
                 ]);
 
                 $uploadedFiles[] = $audioFile;
             } catch (\Exception $e) {
                 \Log::error("Audio upload error: " . $e->getMessage(), [
-                    'file' => $originalName ?? 'unknown',
+                    'file' => $originalName,
                     'trace' => $e->getTraceAsString()
                 ]);
 
-                if (!in_array($e->getMessage(), ["Duplicate file detected"])) {
+                // Always add duplicate detection message
+                if ($e->getMessage() === "Duplicate file detected") {
+                    $errors[] = "{$originalName} has already been uploaded";
+                } else {
                     $errors[] = "Failed to upload {$originalName}: " . $e->getMessage();
                 }
             }
@@ -102,14 +99,14 @@ class MusicController extends Controller
         }
 
         if (!empty($errors)) {
-            $response = $response->with([
-                'error' => $errors[0],
-                'old_input' => $request->except('music1')
-            ]);
+            $response = $response->withErrors($errors)
+                ->withInput($request->except('music1'));
         }
 
         return $response;
     }
+
+
     // private function generateFingerprint($filePath)
     // {
     //     if (!$filePath || !file_exists($filePath)) {
@@ -122,8 +119,8 @@ class MusicController extends Controller
     //         return null;
     //     }
 
-    //     // $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
-    //     $fpcalcPath = base_path('fpcalc');
+    //     $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
+    //     // $fpcalcPath = base_path('fpcalc');
 
     //     if (!file_exists($fpcalcPath)) {
     //         \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
@@ -168,6 +165,7 @@ class MusicController extends Controller
     //     return $result['fingerprint'];
     // }
 
+    // live
     private function generateFingerprint($filePath)
     {
         if (!$filePath || !file_exists($filePath)) {
@@ -179,8 +177,9 @@ class MusicController extends Controller
             \Log::error("Fingerprinting failed: File is not readable - " . $filePath);
             return null;
         }
+        $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
 
-        $fpcalcPath = base_path('fpcalc');
+        // $fpcalcPath = base_path('fpcalc');
 
         if (!file_exists($fpcalcPath)) {
             \Log::error("Fingerprinting failed: fpcalc not found at {$fpcalcPath}");
@@ -377,7 +376,7 @@ class MusicController extends Controller
             $fingerprintUpdated = false;
 
 
-       
+
 
             if ($request->hasFile('music')) {
                 $file = $request->file('music');
