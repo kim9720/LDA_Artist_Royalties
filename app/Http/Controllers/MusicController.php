@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 // use DataTables;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\DataTables ;
+use Yajra\DataTables\DataTables;
 
 class MusicController extends Controller
 {
@@ -110,6 +110,64 @@ class MusicController extends Controller
 
         return $response;
     }
+    // private function generateFingerprint($filePath)
+    // {
+    //     if (!$filePath || !file_exists($filePath)) {
+    //         \Log::error("Fingerprinting failed: File does not exist - " . $filePath);
+    //         return null;
+    //     }
+
+    //     if (!is_readable($filePath)) {
+    //         \Log::error("Fingerprinting failed: File is not readable - " . $filePath);
+    //         return null;
+    //     }
+
+    //     // $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
+    //     $fpcalcPath = base_path('fpcalc');
+
+    //     if (!file_exists($fpcalcPath)) {
+    //         \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
+    //         return null;
+    //     }
+
+    //     $command = sprintf(
+    //         '%s -json %s 2>&1',
+    //         escapeshellarg($fpcalcPath),
+    //         escapeshellarg($filePath)
+    //     );
+
+    //     \Log::debug("Executing fingerprint command: {$command}");
+
+    //     $output = shell_exec($command);
+    //     $exitCode = $this->getLastCommandExitCode();
+
+    //     if ($exitCode !== 0 || $output === null) {
+    //         \Log::error("Fingerprinting failed", [
+    //             'exit_code' => $exitCode,
+    //             'output' => $output,
+    //             'file' => $filePath
+    //         ]);
+    //         return null;
+    //     }
+
+    //     $result = json_decode(trim($output), true);
+
+    //     if (json_last_error() !== JSON_ERROR_NONE) {
+    //         \Log::error("Fingerprinting JSON parse failed", [
+    //             'error' => json_last_error_msg(),
+    //             'output' => $output
+    //         ]);
+    //         return null;
+    //     }
+
+    //     if (empty($result['fingerprint'])) {
+    //         \Log::error("Fingerprinting failed: Empty fingerprint", ['result' => $result]);
+    //         return null;
+    //     }
+
+    //     return $result['fingerprint'];
+    // }
+
     private function generateFingerprint($filePath)
     {
         if (!$filePath || !file_exists($filePath)) {
@@ -122,11 +180,10 @@ class MusicController extends Controller
             return null;
         }
 
-        // $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
         $fpcalcPath = base_path('fpcalc');
 
         if (!file_exists($fpcalcPath)) {
-            \Log::error("Fingerprinting failed: fpcalc.exe not found at {$fpcalcPath}");
+            \Log::error("Fingerprinting failed: fpcalc not found at {$fpcalcPath}");
             return null;
         }
 
@@ -141,6 +198,10 @@ class MusicController extends Controller
         $output = shell_exec($command);
         $exitCode = $this->getLastCommandExitCode();
 
+        // Debugging: Log raw output
+        \Log::debug("Raw fpcalc output:", ['output' => $output]);
+
+        // Check for command failure (exit code 0 means success)
         if ($exitCode !== 0 || $output === null) {
             \Log::error("Fingerprinting failed", [
                 'exit_code' => $exitCode,
@@ -150,7 +211,9 @@ class MusicController extends Controller
             return null;
         }
 
-        $result = json_decode(trim($output), true);
+        // Trim whitespace and decode JSON
+        $output = trim($output);
+        $result = json_decode($output, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             \Log::error("Fingerprinting JSON parse failed", [
@@ -173,35 +236,13 @@ class MusicController extends Controller
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             return $this->getWindowsExitCode();
         }
-        return shell_exec('echo $?');
+        return (int)shell_exec('echo $?'); // Cast to integer
     }
 
-    // private function generateFingerprint($filePath) {
-    //     $ffmpeg = FFMpeg::create([
-    //         'ffmpeg.binaries'  => '/usr/bin/ffmpeg',  // Path to ffmpeg
-    //         'ffprobe.binaries' => '/usr/bin/ffprobe', // Path to ffprobe
-    //         'timeout'          => 3600,               // Increase timeout
-    //     ]);
-
-    //     try {
-    //         $audio = $ffmpeg->open($filePath);
-    //         $waveform = $audio->waveform();
-    //         return md5_file($filePath); // Fallback hash
-    //     } catch (\Exception $e) {
-    //         \Log::error("FFmpeg error: " . $e->getMessage());
-    //         return null;
-    //     }
-    // // }
-    // private function getLastCommandExitCode()
-    // {
-    //     return (int) shell_exec('echo $?');
-    // }
     private function getWindowsExitCode()
     {
-        $output = shell_exec('echo %ERRORLEVEL%');
-        return (int) trim($output);
+        return (int)shell_exec('echo %ERRORLEVEL%');
     }
-
     private function formatBytes($bytes, $precision = 2)
     {
         $units = ['B', 'KB', 'MB', 'GB'];
