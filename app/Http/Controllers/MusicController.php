@@ -177,9 +177,9 @@ class MusicController extends Controller
             \Log::error("Fingerprinting failed: File is not readable - " . $filePath);
             return null;
         }
-        $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
+        // $fpcalcPath = env(base_path('fpcalc'), 'C:\fpcalc\fpcalc.exe');
 
-        // $fpcalcPath = base_path('fpcalc');
+        $fpcalcPath = base_path('fpcalc');
 
         if (!file_exists($fpcalcPath)) {
             \Log::error("Fingerprinting failed: fpcalc not found at {$fpcalcPath}");
