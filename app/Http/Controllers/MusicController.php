@@ -377,14 +377,16 @@ class MusicController extends Controller
             $fingerprintUpdated = false;
 
 
+       
+
             if ($request->hasFile('music')) {
                 $file = $request->file('music');
                 $originalName = $file->getClientOriginalName();
                 $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
                     . '.' . $file->extension();
 
-                $path = $file->storeAs('/music', time() . '_' . $safeName);
-                $fullPath = str_replace('/', '\\', Storage::path($path));
+                    $path = $file->storeAs('music', time() . '_' . $safeName);
+                    $fullPath = Storage::path($path);
 
                 if (!Storage::exists($path)) {
                     throw new \Exception("File storage failed: {$path}");
