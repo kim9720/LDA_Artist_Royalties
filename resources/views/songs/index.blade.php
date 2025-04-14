@@ -386,6 +386,7 @@
         });
 
         $(document).ready(function() {
+            
             var table = $('#kt_datatable_example').DataTable({
                 processing: true,
                 serverSide: true,
@@ -431,10 +432,7 @@
                 order: [
                     [3, 'desc']
                 ],
-                responsive: true,
-                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                    "<'row'<'col-sm-12'tr>>" +
-                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search songs...",

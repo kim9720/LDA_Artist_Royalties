@@ -44,14 +44,14 @@
                     <form class="form">
                         <div class="card-body border-top px-9 pt-3 pb-4">
                             <div class="table-responsive">
-                                <table class="table table-row-dashed border-gray-300 align-middle gy-6" id="user_table">
+                                <table class="table table-row-dashed border-gray-300 align-middle gy-6 table-responsive" id="user_table">
                                     <thead class="fs-6 fw-semibold"> <!-- Changed from tbody to thead for proper header -->
                                         <tr>
                                             <th>#</th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Phone</th>
-                                            <th>Role</th>
+                                            <th>Total Songs</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -83,9 +83,12 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.get_users') }}",
-                columns: [{
-                        data: 'id',
-                        name: 'id'
+                columns: [
+                    {
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'name',
@@ -100,11 +103,11 @@
                         name: 'phone'
                     },
                     {
-                        data: 'role_id',
-                        name: 'role_id'
+                        data: 'audio_count',
+                        name: 'audio_count'
                     },
                     {
-                        data: 'action',
+                        data: null,
                         name: 'action',
                         orderable: false,
                         searchable: false,
@@ -124,10 +127,19 @@
                     `;
                         }
                     }
-                ]
+                ],
+                order: [
+                    [3, 'desc']
+                ],
+              
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search songs...",
+                    lengthMenu: "Show _MENU_ tracks",
+                }
             });
 
-            
+
             $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
                 e.stopPropagation();

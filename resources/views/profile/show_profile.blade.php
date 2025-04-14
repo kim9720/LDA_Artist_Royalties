@@ -9,8 +9,11 @@
                     <div class="card-title m-0">
                         <h3 class="fw-bold m-0">Profile Details</h3>
                     </div>
-                    <a href="{{ route('profile.profile_settings') }}" class="btn btn-sm btn-primary align-self-center">Edit
-                        Profile</a>
+                    @if (Auth::user()->role_id == 2)
+                        <a href="{{ route('profile.profile_settings') }}"
+                            class="btn btn-sm btn-primary align-self-center">Edit
+                            Profile</a>
+                    @endif
                 </div>
 
                 <div class="card-body p-9">
@@ -24,8 +27,7 @@
                     <div class="row mb-7">
                         <label class="col-lg-4 fw-semibold text-muted">Artist Name</label>
                         <div class="col-lg-8">
-                            <span
-                                class="fw-bold fs-6 text-gray-800">{{ $profile->artist_name }}</span>
+                            <span class="fw-bold fs-6 text-gray-800">{{ $profile->artist_name }}</span>
                         </div>
                     </div>
 
@@ -34,11 +36,11 @@
                             Contact Phone
 
                             <span class="ms-1" data-bs-toggle="tooltip" title="Phone number must be active">
-                                <i class="fa fa-phone fs-7"><span class="path1"></span><span
-                                        class="path2"></span><span class="path3"></span></i> </span>
+                                <i class="fa fa-phone fs-7"><span class="path1"></span><span class="path2"></span><span
+                                        class="path3"></span></i> </span>
                         </label>
                         <div class="col-lg-8 d-flex align-items-center">
-                            <span class="fw-bold fs-6 text-gray-800 me-2">{{$profile->phone }}</span>
+                            <span class="fw-bold fs-6 text-gray-800 me-2">{{ $profile->phone }}</span>
                             <span class="badge badge-danger">Not Verified</span>
                         </div>
                     </div>
@@ -47,8 +49,8 @@
                             Country
 
                             <span class="ms-1" data-bs-toggle="tooltip" title="Country of origination">
-                                <i class="fa fa-globe fs-7"><span class="path1"></span><span
-                                        class="path2"></span><span class="path3"></span></i> </span>
+                                <i class="fa fa-globe fs-7"><span class="path1"></span><span class="path2"></span><span
+                                        class="path3"></span></i> </span>
                         </label>
 
                         <div class="col-lg-8">
@@ -60,7 +62,7 @@
                         <label class="col-lg-4 fw-semibold text-muted">Email</label>
 
                         <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">{{$profile->email }}</span>
+                            <span class="fw-bold fs-6 text-gray-800">{{ $profile->email }}</span>
                         </div>
                     </div>
 
@@ -68,31 +70,33 @@
                         <label class="col-lg-4 fw-semibold text-muted">Bank Name</label>
 
                         <div class="col-lg-8">
-                            <span class="fw-semibold fs-6 text-gray-800">{{$profile->bank_name }}</span>
+                            <span class="fw-semibold fs-6 text-gray-800">{{ $profile->bank_name }}</span>
                         </div>
                     </div>
                     <div class="row mb-10">
                         <label class="col-lg-4 fw-semibold text-muted">Account Number</label>
 
                         <div class="col-lg-8">
-                            <span class="fw-semibold fs-6 text-gray-800">{{$profile->account_number }}</span>
+                            <span class="fw-semibold fs-6 text-gray-800">{{ $profile->account_number }}</span>
                         </div>
                     </div>
+                    @if (Auth::user()->role_id == 2)
                     <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed  p-6">
                         <i class="fa fa-info-circle fs-2tx text-warning me-4"><span class="path1"></span><span
                                 class="path2"></span><span class="path3"></span></i>
+                            <div class="d-flex flex-stack flex-grow-1 ">
+                                <div class=" fw-semibold">
+                                    <h4 class="text-gray-900 fw-bold">We need your attention!</h4>
 
-                        <div class="d-flex flex-stack flex-grow-1 ">
-                            <div class=" fw-semibold">
-                                <h4 class="text-gray-900 fw-bold">We need your attention!</h4>
+                                    <div class="fs-6 text-gray-700 ">Your payment was declined. To start using
+                                        tools, please <a class="fw-bold" href="{{ route('profile.profile_bill') }}">Add
+                                            Payment
+                                            Method</a>.</div>
+                                </div>
 
-                                <div class="fs-6 text-gray-700 ">Your payment was declined. To start using
-                                    tools, please <a class="fw-bold" href="{{route('profile.profile_bill')}}">Add Payment
-                                        Method</a>.</div>
                             </div>
-
                         </div>
-                    </div>
+                        @endif
                 </div>
             </div>
 

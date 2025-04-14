@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/get_users', [UserController::class, 'getUsers'])->name('admin.get_users');
     Route::post('/users_destroy/{id}', [UserController::class, 'userDelete'])->name('admin.users_destroy');
     Route::get('/user_profile_show/{id}', [UserController::class, 'userProfileShow'])->name('admin.user_profile_show');
+    Route::get('/user_song_page/{id}', [UserController::class, 'userSongPage'])->name('admin.user_song_page');
+    Route::get('/user_song_get/{id}', [UserController::class, 'userSongGet'])->name('admin.user_song_get');
 });
 
 require __DIR__ . '/auth.php';
