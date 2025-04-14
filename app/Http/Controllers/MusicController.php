@@ -26,7 +26,7 @@ class MusicController extends Controller
         ]);
 
         $uploadedFiles = [];
-        $errors = '';
+        $errorMessages = []; // Changed to array to support multiple errors
 
         if ($request->hasFile('music1')) {
             $file = $request->file('music1');
@@ -52,8 +52,7 @@ class MusicController extends Controller
                 $newHash = hash('sha256', $fingerprint);
                 if (AudioFile::where('fingerprint_hash', $newHash)->exists()) {
                     Storage::delete($path);
-                    $errors = "{$originalName} has already been uploaded";
-                    throw new \Exception("Duplicate file detected");
+                    throw new \Exception("{$originalName} has already been uploaded");
                 }
 
                 $getID3 = new \getID3;
@@ -80,12 +79,7 @@ class MusicController extends Controller
                     'trace' => $e->getTraceAsString()
                 ]);
 
-                // Always add duplicate detection message
-                if ($e->getMessage() === "Duplicate file detected") {
-                    $errors = "{$originalName} has already been uploaded";
-                } else {
-                    $errors = "Failed to upload {$originalName}: " . $e->getMessage();
-                }
+                $errorMessages[] = $e->getMessage(); // Add error to array
             }
         }
 
@@ -98,9 +92,9 @@ class MusicController extends Controller
             ]);
         }
 
-        if (!empty($errors)) {
+        if (!empty($errorMessages)) {
             $response = $response->with([
-                'error_messages' => $errors,
+                'error_messages' => $errorMessages, // Send array of messages
                 'old_input' => $request->except('music1')
             ]);
         }
