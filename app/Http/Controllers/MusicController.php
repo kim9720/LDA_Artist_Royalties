@@ -25,8 +25,8 @@ class MusicController extends Controller
             'isrc_code' => 'nullable|string|max:12',
         ]);
 
-        $uploadedFiles = [];
-        $errorMessages = []; // Changed to array to support multiple errors
+        $uploadedFile = null; // Track single file instead of array
+        $errorMessage = null; // Single error message
 
         if ($request->hasFile('music1')) {
             $file = $request->file('music1');
@@ -40,7 +40,7 @@ class MusicController extends Controller
                 $fullPath = Storage::path($path);
 
                 if (!Storage::exists($path)) {
-                    throw new \Exception("File storage failed: {$path}");
+                    throw new \Exception("File storage failed");
                 }
 
                 $fingerprint = $this->generateFingerprint($fullPath);
@@ -52,13 +52,13 @@ class MusicController extends Controller
                 $newHash = hash('sha256', $fingerprint);
                 if (AudioFile::where('fingerprint_hash', $newHash)->exists()) {
                     Storage::delete($path);
-                    throw new \Exception("{$originalName} has already been uploaded");
+                    throw new \Exception("This song has already been uploaded");
                 }
 
                 $getID3 = new \getID3;
                 $fileInfo = $getID3->analyze($fullPath);
 
-                $audioFile = AudioFile::create([
+                $uploadedFile = AudioFile::create([
                     'user_id' => auth()->id(),
                     'filename' => basename($path),
                     'original_name' => $originalName,
@@ -72,34 +72,27 @@ class MusicController extends Controller
                     'mime_type' => $file->getMimeType(),
                 ]);
 
-                $uploadedFiles[] = $audioFile;
             } catch (\Exception $e) {
                 \Log::error("Audio upload error: " . $e->getMessage(), [
                     'file' => $originalName,
                     'trace' => $e->getTraceAsString()
                 ]);
 
-                $errorMessages[] = $e->getMessage(); // Add error to array
+                $errorMessage = $e->getMessage();
             }
         }
 
-        $response = back();
-
-        if (!empty($uploadedFiles)) {
-            $response = $response->with([
-                'success' => count($uploadedFiles) . ' file uploaded successfully!',
-                'uploaded_files' => $uploadedFiles
+        if ($uploadedFile) {
+            return back()->with([
+                'success' => 'File uploaded successfully!',
+                'uploaded_file' => $uploadedFile
             ]);
         }
 
-        if (!empty($errorMessages)) {
-            $response = $response->with([
-                'error_messages' => $errorMessages, // Send array of messages
-                'old_input' => $request->except('music1')
-            ]);
-        }
-
-        return $response;
+        return back()->with([
+            'error_message' => $errorMessage, // Single message
+            'old_input' => $request->except('music1')
+        ]);
     }
 
 

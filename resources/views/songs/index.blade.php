@@ -306,15 +306,11 @@
                     });
                 @endif
 
-                @if (session('error_messages'))
+                @if (session('error_message'))
                     Swal.fire({
                         icon: 'error',
-                        title: 'Upload Errors',
-                        html: `<ul>
-                        @foreach (session('error_messages') as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                        </ul>`,
+                        title: 'Upload Error',
+                        text: '{{ session('error_message') }}',
                         confirmButtonText: 'OK',
                         width: '600px'
                     });
@@ -386,7 +382,7 @@
         });
 
         $(document).ready(function() {
-            
+
             var table = $('#kt_datatable_example').DataTable({
                 processing: true,
                 serverSide: true,
@@ -417,7 +413,7 @@
                         name: 'audio_player',
                         className: 'text-end'
                     },
-                     {
+                    {
                         data: 'status',
                         name: 'status'
                     },
