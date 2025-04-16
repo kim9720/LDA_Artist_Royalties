@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SongController;
@@ -29,7 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/all_songs', [SongController::class, 'index'])->name('all_song');
     // Route::post('/upload-music', [SongController::class, 'songStore'])->name('music.upload');
 
-    //new
+    //new route for song
     Route::post('/upload_music', [MusicController::class, 'upload'])->name('music.upload');
     Route::get('/audio_files', [MusicController::class, 'index'])->name('audio_files.index');
     Route::get('/audio_files/data', [MusicController::class, 'getAudioFiles'])->name('audio_files.data');
@@ -47,6 +48,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/complaints_marked_list', [ComplaintController::class, 'complaintMarkedPage'])->name('complaints.marked_show');
     Route::get('complaints_maked', [ComplaintController::class, 'getMarkedComplaints'])->name('complaints.marked_get');
     Route::post('complaints_delete', [ComplaintController::class, 'deleteComplaints'])->name('complaints.delete');
+
+
+    //Payment
+    Route::get('payment_page', [PaymentController::class, 'index'])->name('payment.index');
 
 
     //admin
