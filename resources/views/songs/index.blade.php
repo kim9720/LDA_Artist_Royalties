@@ -307,7 +307,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Upload Error',
-                        text: '{{ session('error_message') }}',
+                        text: @json(session('error_message')),
                         confirmButtonText: 'OK',
                         width: '600px'
                     });
