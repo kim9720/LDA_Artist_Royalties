@@ -278,24 +278,21 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 @if (session('success'))
-                    const uploadedFiles = @json(session('uploaded_file', []));
+                    const uploadedFile = @json(session('uploaded_file', []));
                     let htmlContent = `<p>@json(session('success'))</p>`;
 
-                    if (uploadedFiles.length > 0) {
                         htmlContent += '<ul style="text-align: left; margin-top: 15px;">';
-                        uploadedFiles.forEach(file => {
                             htmlContent += `
                         <li style="margin-bottom: 10px;">
-                            <strong>${file.original_name}</strong>
+                            <strong>${uploadedFile.original_name}</strong>
                             <div style="color: #6c757d; font-size: 0.85rem;">
-                                Size: ${file.file_size} |
-                                Type: ${file.mime_type} |
-                                ${file.duration ? 'Duration: ' + file.duration : ''}
+                                Size: ${uploadedFile.file_size} |
+                                Type: ${uploadedFile.mime_type} |
+                                ${uploadedFile.duration ? 'Duration: ' + uploadedFile.duration : ''}
                             </div>
                         </li>`;
-                        });
                         htmlContent += '</ul>';
-                    }
+
 
                     Swal.fire({
                         icon: 'success',
