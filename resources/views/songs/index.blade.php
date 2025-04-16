@@ -278,7 +278,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 @if (session('success'))
-                    const uploadedFiles = @json(session('uploaded_files', []));
+                    const uploadedFiles = @json(session('uploaded_file', []));
                     let htmlContent = `<p>@json(session('success'))</p>`;
 
                     if (uploadedFiles.length > 0) {
