@@ -52,7 +52,7 @@ class MusicController extends Controller
                 $newHash = hash('sha256', $fingerprint);
                 if (AudioFile::where('fingerprint_hash', $newHash)->exists()) {
                     Storage::delete($path);
-                    throw new \Exception("This song has already been uploaded");
+                    // throw new \Exception("This song has already been uploaded");
                 }
 
                 $getID3 = new \getID3;
