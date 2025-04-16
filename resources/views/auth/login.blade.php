@@ -8,7 +8,7 @@
                         <img alt="Logo" src="{{ asset('assets/media/auth/logo.png') }}" width="200px" height="100px" />
                     </a>
                     <h2 class="text-white fw-normal m-0">
-                        Branding tools designed for your business
+                        Media Tracking Made Simple
                     </h2>
                 </div>
             </div>
