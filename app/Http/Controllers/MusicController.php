@@ -89,8 +89,9 @@ class MusicController extends Controller
             ]);
         }
 
+        \Log::error("Upload failed: " . $errorMessage);
         return back()->with([
-            'error_message' => $errorMessage, // Single message
+            'error_message' => $errorMessage,
             'old_input' => $request->except('music1')
         ]);
     }
