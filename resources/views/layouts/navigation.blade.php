@@ -77,7 +77,7 @@
 
                         <!--begin::Input-->
                         <input type="text" class="form-control custom-form-control ps-13"
-                            name="search" value="" placeholder="Find Goods"
+                            name="search" value="" placeholder="Find Song"
                             data-kt-search-element="input" />
                         <!--end::Input-->
 

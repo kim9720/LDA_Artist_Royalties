@@ -23,7 +23,7 @@ class ProfileController extends Controller
         $userAudioCount = AudioFile::where('user_id', Auth::id())->count();
         $totalAudioCount = AudioFile::count();
         $notAprovedSong = AudioFile::where('approve_status', 0)->count();
-        $total_artist = User::where('role_id', 2)->count();
+        $total_artist = User::where('role_id', 2)->get();
 
         // Prevent division by zero
         $percentage = $totalAudioCount > 0 ? ($userAudioCount / $totalAudioCount) * 100 : 0;
