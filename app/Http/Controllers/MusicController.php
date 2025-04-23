@@ -96,7 +96,7 @@ class MusicController extends Controller
         ]);
     }
 
-
+//local
     // private function generateFingerprint($filePath)
     // {
     //     if (!$filePath || !file_exists($filePath)) {
@@ -506,5 +506,11 @@ class MusicController extends Controller
             // })
             ->rawColumns(['audio_file',  'status'])
             ->make(true);
+    }
+
+    public function getTrackDetails(Request $request) {
+        $song = AudioFile::findOrFail($request->song_id);
+
+        return view('songs.song_track_details', compact('song'));
     }
 }

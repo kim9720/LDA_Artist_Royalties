@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/audio_files/{id}', [MusicController::class, 'destroy'])->name('audio_files.destroy');
     Route::post('/audio_files_edit', [MusicController::class, 'edit'])->name('audio_files.edit');
     Route::get('/approved_song', [MusicController::class, 'getApprovedSong'])->name('approved_song.get');
+    Route::post('/track_details', [MusicController::class, 'getTrackDetails'])->name('song.track_details');
 
     //Complaints
     Route::get('/complaints_list', [ComplaintController::class, 'complaintListPage'])->name('complaints.show');

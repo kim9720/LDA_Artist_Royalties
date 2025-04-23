@@ -42,7 +42,7 @@
                                 <th class="min-w-100px">Uploaded Date</th>
                                 <th class="text-end min-w-75px">No. Listiner</th>
                                 <th class="text-end min-w-75px">Audio File</th>
-                                <th class="min-w-100px">Status</th>
+                                {{-- <th class="min-w-100px">Status</th> --}}
                                 {{-- <th class="text-end min-w-100px pe-5">Action</th> --}}
                             </tr>
                         </thead>
@@ -61,13 +61,12 @@
             $(document).ready(function() {
                 $('#music_track_datatable').DataTable({
                     processing: true,
-                    serverSide: true, // Enable server-side processing
+                    serverSide: true,
                     ajax: {
                         url: "{{ route('approved_song.get') }}",
                         type: 'GET',
                     },
-                    columns: [
-                        {
+                    columns: [{
                             data: 'artist',
                             name: 'artist'
                         },
@@ -87,39 +86,37 @@
                         {
                             data: 'audio_file',
                             name: 'audio_file',
-                            className: 'text-end',
-
+                            className: 'text-end'
                         },
-                        {
-                            data: 'status',
-                            name: 'status',
-                            render: function(data) {
-                                // Dynamic badge based on status
-                                const color = data === 'approved' ? 'success' : 'danger';
-                                return `<span class="badge badge-light-${color}">${data}</span>`;
-                            }
-                        }
-                    //     {
-                    //         data: 'action',
-                    //         name: 'action',
-                    //         className: 'text-end',
-                    //         orderable: false,
-                    //         searchable: false,
-                    //         render: function(data, type, row) {
-                    //             // Example: Edit & Delete buttons
-                    //             return `
-                    //     <div class="d-flex justify-content-end gap-2">
-                    //         <a href="/tracks/${row.id}/edit" class="btn btn-sm btn-light">Edit</a>
-                    //         <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">Delete</button>
-                    //     </div>
-                    // `;
-                    //         }
-                    //     }
                     ],
-                    responsive: true, // Enable responsive mode
-                    dom: '<"top"f>rt<"bottom"lip><"clear">', // Custom controls layout
+                    responsive: true,
+                    dom: '<"top"f>rt<"bottom"lip><"clear">',
                     language: {
                         emptyTable: "No music tracks found.",
+                    },
+                    rowCallback: function(row, data, index) {
+                        $(row).css('cursor', 'pointer');
+                        $(row).on('click', function() {
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = "{{ route('song.track_details') }}";
+                            form.style.display = 'none';
+
+                            const csrfToken = document.createElement('input');
+                            csrfToken.type = 'hidden';
+                            csrfToken.name = '_token';
+                            csrfToken.value = "{{ csrf_token() }}";
+
+                            const songIdInput = document.createElement('input');
+                            songIdInput.type = 'hidden';
+                            songIdInput.name = 'song_id';
+                            songIdInput.value = data.id;
+
+                            form.appendChild(csrfToken);
+                            form.appendChild(songIdInput);
+                            document.body.appendChild(form);
+                            form.submit(); 
+                        });
                     }
                 });
             });
