@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\ActivityLog;
 use App\Models\AudioFile;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,34 @@ class ProfileController extends Controller
         $percentage = $totalAudioCount > 0 ? ($userAudioCount / $totalAudioCount) * 100 : 0;
 
         $percentage_not_approved_song = $totalAudioCount > 0 ? ($notAprovedSong / $totalAudioCount) * 100 : 0;
+        $days = collect();
+        $today = now();
+
+        // Generate 10 days (adjust as needed)
+        for ($i = 0; $i < 10; $i++) {
+            $date = $today->copy()->subDays($i);
+            $days->push([
+                'date' => $date,
+                'is_active' => $i === 0 // Today is active
+            ]);
+        }
+
+        $activities = ActivityLog::with('user')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'id' => $log->id,
+                    'date' => $log->created_at->format('Y-m-d'),
+                    'time' => $log->created_at->format('h:i'),
+                    'ampm' => $log->created_at->format('A'),
+                    'action' => $log->action,
+                    'description' => $this->getActivityDescription($log),
+                    'type_color' => $this->getActivityColor($log->action),
+                    'user_name' => $log->user->name,
+                    'audio_title' => optional($log->video)->title
+                ];
+            });
 
 
         return view('dashboard', compact(
@@ -37,9 +66,39 @@ class ProfileController extends Controller
             'totalAudioCount',
             'total_artist',
             'notAprovedSong',
-            'percentage_not_approved_song'
+            'percentage_not_approved_song',
+            'days',
+            'activities'
         ));
     }
+    // Controller
+
+
+    private function getActivityDescription($log)
+    {
+        // dd($log);
+        switch ($log->action) {
+            case 'audio_upload':
+                return "Uploaded new song";
+            case 'audio_delete':
+                return "Deleted a song";
+            case 'login':
+                return "Logged into the system";
+            default:
+                return ucfirst(str_replace('_', ' ', $log->action));
+        }
+    }
+
+    private function getActivityColor($action)
+    {
+        return match ($action) {
+            'audio_upload' => 'success',
+            'audio_delete' => 'danger',
+            'login' => 'primary',
+            default => 'info'
+        };
+    }
+
 
 
     public function edit(Request $request): View

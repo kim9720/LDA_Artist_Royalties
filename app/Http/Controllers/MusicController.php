@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AudioFile;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use getID3;
@@ -17,6 +18,7 @@ use Yajra\DataTables\DataTables;
 
 class MusicController extends Controller
 {
+
     public function upload(Request $request)
     {
         $validated = $request->validate([
@@ -25,12 +27,18 @@ class MusicController extends Controller
             'isrc_code' => 'nullable|string|max:12',
         ]);
 
-        $uploadedFile = null; // Track single file instead of array
-        $errorMessage = null; // Single error message
+        $uploadedFile = null;
+        $errorMessage = null;
+        $activityData = [
+            'song_title' => $validated['song_title'],
+            'file_size' => $request->file('music1')->getSize(),
+            'isrc_code' => $validated['isrc_code'] ?? null
+        ];
 
         if ($request->hasFile('music1')) {
             $file = $request->file('music1');
             $originalName = $file->getClientOriginalName();
+            $activityData['original_filename'] = $originalName;
 
             try {
                 $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
@@ -72,13 +80,36 @@ class MusicController extends Controller
                     'mime_type' => $file->getMimeType(),
                 ]);
 
+                // Log successful upload
+                ActivityLogger::log(
+                    auth()->user(),
+                    'audio_upload',
+                    'Uploaded audio file: ' . $validated['song_title'],
+                    array_merge($activityData, [
+                        'file_id' => $uploadedFile->id,
+                        'duration' => $fileInfo['playtime_string'] ?? null,
+                        'status' => 'success'
+                    ])
+                );
             } catch (\Exception $e) {
+                $errorMessage = $e->getMessage();
+                $activityData['error'] = $errorMessage;
+
+                // Log failed upload attempt
+                ActivityLogger::log(
+                    auth()->user(),
+                    'audio_upload_failed',
+                    'Failed to upload audio: ' . $originalName,
+                    array_merge($activityData, [
+                        'status' => 'failed',
+                        'error_message' => $errorMessage
+                    ])
+                );
+
                 \Log::error("Audio upload error: " . $e->getMessage(), [
                     'file' => $originalName,
                     'trace' => $e->getTraceAsString()
                 ]);
-
-                $errorMessage = $e->getMessage();
             }
         }
 
@@ -89,14 +120,13 @@ class MusicController extends Controller
             ]);
         }
 
-        \Log::error("Upload failed: " . $errorMessage);
         return back()->with([
-            'error_message' => $errorMessage,
+            'error_message' => $errorMessage ?? 'Unknown upload error',
             'old_input' => $request->except('music1')
         ]);
     }
 
-//local
+    //local
     // private function generateFingerprint($filePath)
     // {
     //     if (!$filePath || !file_exists($filePath)) {
@@ -326,6 +356,11 @@ class MusicController extends Controller
     {
         try {
             $file = AudioFile::findOrFail($id);
+            $activityData = [
+                'song_title' => $file->original_name,
+                'file_size' => $file->file_size,
+                'isrc_code' => $file->isrc_code
+            ];
 
             if ($file->user_id != auth()->id()) {
                 return response()->json([
@@ -337,6 +372,18 @@ class MusicController extends Controller
             Storage::delete($file->path);
 
             $file->delete();
+
+            // Log successful upload
+            ActivityLogger::log(
+                auth()->user(),
+                'audio_delete',
+                'Deleted audio file: ' . $file->original_name,
+                array_merge($activityData, [
+                    'file_id' => $id,
+                    'duration' => $fileInfo['playtime_string'] ?? null,
+                    'status' => 'success'
+                ])
+            );
 
             return response()->json([
                 'success' => true,
@@ -374,8 +421,8 @@ class MusicController extends Controller
                 $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME))
                     . '.' . $file->extension();
 
-                    $path = $file->storeAs('music', time() . '_' . $safeName);
-                    $fullPath = Storage::path($path);
+                $path = $file->storeAs('music', time() . '_' . $safeName);
+                $fullPath = Storage::path($path);
 
                 if (!Storage::exists($path)) {
                     throw new \Exception("File storage failed: {$path}");
@@ -508,7 +555,8 @@ class MusicController extends Controller
             ->make(true);
     }
 
-    public function getTrackDetails(Request $request) {
+    public function getTrackDetails(Request $request)
+    {
         $song = AudioFile::findOrFail($request->song_id);
 
         return view('songs.song_track_details', compact('song'));
