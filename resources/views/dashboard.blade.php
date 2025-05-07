@@ -461,114 +461,54 @@
                         </div>
 
                         <div class="card card-flush h-lg-50">
-                            <!--begin::Header-->
                             <div class="card-header pt-5">
-                                <!--begin::Title-->
-                                <h3 class="card-title text-gray-800">Highlights</h3>
-                                <!--end::Title-->
-
-                                <!--begin::Toolbar-->
+                                <h3 class="card-title text-gray-800">Last five Complaints</h3>
                                 <div class="card-toolbar d-none">
-                                    <!--begin::Daterangepicker(defined in src/js/layout/app.js)-->
                                     <div data-kt-daterangepicker="true" data-kt-daterangepicker-opens="left"
                                         class="btn btn-sm btn-light d-flex align-items-center px-4">
-                                        <!--begin::Display range-->
                                         <div class="text-gray-600 fw-bold">
                                             Loading date range...
                                         </div>
-                                        <!--end::Display range-->
-
-                                        <i class="ki-duotone ki-calendar-8 fs-1 ms-2 me-0"><span
-                                                class="path1"></span><span class="path2"></span><span
-                                                class="path3"></span><span class="path4"></span><span
-                                                class="path5"></span><span class="path6"></span></i>
+                                        <i class="ki-duotone ki-calendar-8 fs-1 ms-2 me-0">
+                                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                            <span class="path4"></span><span class="path5"></span><span class="path6"></span>
+                                        </i>
                                     </div>
-                                    <!--end::Daterangepicker-->
                                 </div>
-                                <!--end::Toolbar-->
                             </div>
-                            <!--end::Header-->
 
-                            <!--begin::Body-->
-                            <div class="card-body pt-5">
-                                <!--begin::Item-->
-                                <div class="d-flex flex-stack">
-                                    <!--begin::Section-->
-                                    <div class="text-gray-700 fw-semibold fs-6 me-2">Avg. Client Rating</div>
-                                    <!--end::Section-->
+                            <div class="card-body pt-5" style="overflow-y: auto; max-height: 170px;">
+                                @if($complaints->count() > 0)
+                                    @foreach($complaints->take(5) as $complaint)
+                                        <div class="d-flex flex-stack mb-3">
+                                            <div class="text-gray-700 fw-semibold fs-6 me-2">
+                                                {{ $complaint->user->name ?? 'Anonymous' }} - {{ $complaint->subject }}
+                                            </div>
+                                            <div class="badge badge-light-{{ $complaint->resolved ? 'success' : 'warning' }}">
+                                                {{ $complaint->resolved ? 'Resolved' : 'Pending' }}
+                                            </div>
+                                        </div>
 
-                                    <!--begin::Statistics-->
-                                    <div class="d-flex align-items-senter">
-                                        <i class="ki-duotone ki-arrow-up-right fs-2 text-success me-2"><span
-                                                class="path1"></span><span class="path2"></span></i>
+                                        <div class="text-gray-600 fs-6 mb-3">
+                                            {{ Str::limit($complaint->message, 100) }}
+                                        </div>
 
-                                        <!--begin::Number-->
-                                        <span class="text-gray-900 fw-bolder fs-6">7.8</span>
-                                        <!--end::Number-->
+                                        <div class="d-flex justify-content-between text-gray-500 fs-7 mb-4">
+                                            <span>{{ $complaint->created_at->format('M d, Y h:i A') }}</span>
+                                            <a href="{{route('complaints.get',$complaint->id)}}" class="text-primary">View Details</a>
+                                        </div>
 
-                                        <span class="text-gray-500 fw-bold fs-6">/10</span>
+                                        @if(!$loop->last)
+                                            <div class="separator separator-dashed my-3"></div>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <div class="text-gray-600 fs-6 text-center py-5">
+                                        No complaints found
                                     </div>
-                                    <!--end::Statistics-->
-                                </div>
-                                <!--end::Item-->
-
-                                <!--begin::Separator-->
-                                <div class="separator separator-dashed my-3"></div>
-                                <!--end::Separator-->
-
-                                <!--begin::Item-->
-                                <div class="d-flex flex-stack">
-                                    <!--begin::Section-->
-                                    <div class="text-gray-700 fw-semibold fs-6 me-2">Avg. Quotes</div>
-                                    <!--end::Section-->
-
-                                    <!--begin::Statistics-->
-                                    <div class="d-flex align-items-senter">
-                                        <i class="ki-duotone ki-arrow-down-right fs-2 text-danger me-2"><span
-                                                class="path1"></span><span class="path2"></span></i>
-
-                                        <!--begin::Number-->
-                                        <span class="text-gray-900 fw-bolder fs-6">730</span>
-                                        <!--end::Number-->
-
-
-                                    </div>
-                                    <!--end::Statistics-->
-                                </div>
-                                <!--end::Item-->
-
-                                <!--begin::Separator-->
-                                <div class="separator separator-dashed my-3"></div>
-                                <!--end::Separator-->
-
-                                <!--begin::Item-->
-                                <div class="d-flex flex-stack">
-                                    <!--begin::Section-->
-                                    <div class="text-gray-700 fw-semibold fs-6 me-2">Avg. Agent Earnings</div>
-                                    <!--end::Section-->
-
-                                    <!--begin::Statistics-->
-                                    <div class="d-flex align-items-senter">
-                                        <i class="ki-duotone ki-arrow-up-right fs-2 text-success me-2"><span
-                                                class="path1"></span><span class="path2"></span></i>
-
-                                        <!--begin::Number-->
-                                        <span class="text-gray-900 fw-bolder fs-6">$2,309</span>
-                                        <!--end::Number-->
-
-
-                                    </div>
-                                    <!--end::Statistics-->
-                                </div>
-                                <!--end::Item-->
-
-
-
+                                @endif
                             </div>
-                            <!--end::Body-->
                         </div>
-                        <!--end::LIst widget 25-->
-
 
                     </div>
 
@@ -586,7 +526,6 @@
                             </div>
 
                             <div class="card-body pt-7 px-0" style="height: 500px; overflow-y: auto;">
-                                <!-- Horizontal scroll container for days -->
                                 <div class="mb-8" style="overflow-x: auto; white-space: nowrap;">
                                     <ul class="nav nav-pills nav-pills-custom nav-pills-active-custom d-inline-flex px-5"
                                         style="display: inline-block; white-space: nowrap;" id="daysTab"
@@ -606,7 +545,6 @@
                                     </ul>
                                 </div>
 
-                                <!-- Vertical scroll content remains the same -->
                                 <div class="tab-content mb-2 px-9">
                                     @foreach ($days as $day)
                                         <div class="tab-pane fade {{ $day['is_active'] ? 'show active' : '' }}"
@@ -659,7 +597,6 @@
                         </div>
                     </div>
 
-                    <!-- Activity Details Modal -->
                     <div class="modal fade" id="kt_modal_activity_details" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
@@ -691,7 +628,6 @@
                                     });
                             }
 
-                            // Initialize tooltips
                             $(document).ready(function() {
                                 $('[data-bs-toggle="tooltip"]').tooltip();
                             });
@@ -699,9 +635,6 @@
                     @endpush
                 </div>
             @endif
-            <!--end::Menu-->
         </div>
-        <!--end::View menu-->
     </div>
-    <!--end::Modal header-->
 @endsection

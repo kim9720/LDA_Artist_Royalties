@@ -13,7 +13,7 @@ class ImportMusicFromApi extends Command
     protected $signature = 'import:music {--ip= : IP address to log}';
     protected $description = 'Fetch music data from API and store in database';
 
-    public function handle()
+    public function handle(): void
     {
         // Get IP from option or server IP
         $ipAddress = $this->option('ip') ?? gethostbyname(gethostname());
@@ -21,7 +21,7 @@ class ImportMusicFromApi extends Command
         Log::info("Starting music import from IP: {$ipAddress}");
 
         try {
-            $response = Http::get('http://localhost:8000/music-tracks');
+            $response = Http::get('http://localhost:8000/api/music-tracks');
 
             if ($response->successful()) {
                 $allTracks = $response->json();

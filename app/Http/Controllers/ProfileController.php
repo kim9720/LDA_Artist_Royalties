@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\ActivityLog;
 use App\Models\AudioFile;
+use App\Models\Complaint;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -59,6 +60,7 @@ class ProfileController extends Controller
                 ];
             });
 
+            $complaints = Complaint::orderBy('created_at', 'desc')->get();
 
         return view('dashboard', compact(
             'userAudioCount',
@@ -68,7 +70,8 @@ class ProfileController extends Controller
             'notAprovedSong',
             'percentage_not_approved_song',
             'days',
-            'activities'
+            'activities',
+            'complaints'
         ));
     }
     // Controller
